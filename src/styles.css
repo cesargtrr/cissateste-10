@@ -7,6 +7,15 @@ a[href*="lovable.dev"][target="_blank"] {
 }
 
 @import "tailwindcss" source(none);
+
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
 @source "../src";
 @import "tw-animate-css";
 
@@ -101,6 +110,12 @@ a[href*="lovable.dev"][target="_blank"] {
     overflow-x: hidden;
     max-width: 100vw;
   }
+
+  html,
+  body {
+    overflow-x: hidden;
+  }
+
 }
 
 @layer base {
