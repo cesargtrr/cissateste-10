@@ -1,0 +1,10 @@
+ALTER TABLE public.customers 
+ADD COLUMN IF NOT EXISTS birth_date DATE,
+ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT true,
+ADD COLUMN IF NOT EXISTS allow_whatsapp_promo BOOLEAN DEFAULT false,
+ADD COLUMN IF NOT EXISTS notes TEXT;
+
+ALTER TABLE public.orders
+ADD COLUMN IF NOT EXISTS discount_amount NUMERIC DEFAULT 0,
+ADD COLUMN IF NOT EXISTS discount_type TEXT, -- 'fixed' or 'percentage'
+ADD COLUMN IF NOT EXISTS service_fee NUMERIC DEFAULT 0;

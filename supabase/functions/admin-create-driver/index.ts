@@ -1,0 +1,113 @@
+import { createClient } from "npm:@supabase/supabase-js@2";
+import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+
+  try {
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return json({ error: "Unauthorized" }, 401);
+    }
+
+    const url = Deno.env.get("SUPABASE_URL")!;
+    const anon = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const service = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
+    const userClient = createClient(url, anon, {
+      global: { headers: { Authorization: authHeader } },
+    });
+    const { data: userData, error: userErr } = await userClient.auth.getUser();
+    if (userErr || !userData?.user) return json({ error: "Unauthorized" }, 401);
+
+    const admin = createClient(url, service);
+
+    // Verify admin role
+    const { data: roleRow } = await admin
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userData.user.id)
+      .eq("role", "admin")
+      .maybeSingle();
+    if (!roleRow) return json({ error: "Forbidden" }, 403);
+
+    const body = await req.json();
+    const {
+      name, phone, tipo_veiculo, placa, observacoes, active,
+      email, password,
+    } = body || {};
+
+    if (!name || !email || !password) {
+      return json({ error: "Missing required fields" }, 400);
+    }
+    if (String(password).length < 6) {
+      return json({ error: "Password must be at least 6 chars" }, 400);
+    }
+
+    // Resolve restaurant_id from the restaurants table (single-tenant).
+    // The client previously sent restaurant_settings.id which violates the FK
+    // delivery_drivers.restaurant_id -> restaurants.id.
+    const { data: restaurantRow, error: restErr } = await admin
+      .from("restaurants")
+      .select("id")
+      .limit(1)
+      .maybeSingle();
+    if (restErr || !restaurantRow?.id) {
+      return json({ error: "No restaurant configured" }, 400);
+    }
+    const restaurant_id = restaurantRow.id as string;
+
+    // Create auth user
+    const { data: created, error: createErr } = await admin.auth.admin.createUser({
+      email: String(email).trim().toLowerCase(),
+      password,
+      email_confirm: true,
+    });
+    if (createErr || !created?.user) {
+      return json({ error: createErr?.message || "Failed to create user" }, 400);
+    }
+    const userId = created.user.id;
+
+    // Insert into delivery_drivers
+    const { data: driver, error: driverErr } = await admin
+      .from("delivery_drivers")
+      .insert({
+        restaurant_id,
+        name,
+        phone: phone || null,
+        tipo_veiculo: tipo_veiculo || null,
+        placa: placa || null,
+        observacoes: observacoes || null,
+        active: active ?? true,
+        user_id: userId,
+      })
+      .select()
+      .single();
+
+    if (driverErr) {
+      // rollback auth user
+      await admin.auth.admin.deleteUser(userId).catch(() => {});
+      return json({ error: driverErr.message }, 400);
+    }
+
+    // Mirror in delivery_driver_users for portal compatibility
+    await admin.from("delivery_driver_users").insert({
+      restaurant_id,
+      driver_id: driver.id,
+      user_id: userId,
+      email: String(email).trim().toLowerCase(),
+      active: active ?? true,
+    }).catch(() => {});
+
+    return json({ driver_id: driver.id, user_id: userId });
+  } catch (e: any) {
+    return json({ error: e?.message || "Server error" }, 500);
+  }
+});
+
+function json(body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+}
