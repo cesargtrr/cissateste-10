@@ -252,9 +252,9 @@ function DriverDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-[#E7D3B1]">
+    <div className="min-h-screen bg-black text-[#E7D3B1] overflow-x-hidden max-w-full">
       <header className="border-b border-[#3A2414] bg-[#0d0907]/80 backdrop-blur sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between gap-3">
+        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between gap-3 overflow-hidden max-w-full">
           <div className="flex items-center gap-2 min-w-0">
             <Bike className="w-5 h-5 text-[#FF7A00] shrink-0" />
             <div className="min-w-0">
@@ -262,39 +262,42 @@ function DriverDashboard() {
               <p className="text-xs text-[#A3A3A3] truncate">{driverName}</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Link to="/driver">
+          <div className="flex items-center justify-start gap-4 p-2 max-w-full overflow-x-auto whitespace-nowrap scrollbar-none min-w-0">
+            <Link to="/driver" className="shrink-0">
               <Button variant="ghost" size="sm" className="text-[#D4A15A] hover:text-[#FF7A00]">
                 <ArrowLeft className="w-4 h-4 mr-1" /> Entregas
               </Button>
             </Link>
-            <Link to="/driver/performance">
+            <Link to="/driver/performance" className="shrink-0">
               <Button variant="ghost" size="sm" className="text-[#D4A15A] hover:text-[#FF7A00]">
                 <Trophy className="w-4 h-4 mr-1" /> Performance
               </Button>
             </Link>
-            <Link to="/driver/earnings">
+            <Link to="/driver/earnings" className="shrink-0">
               <Button variant="ghost" size="sm" className="text-[#D4A15A] hover:text-[#FF7A00]">
                 <Trophy className="w-4 h-4 mr-1" /> Ganhos
               </Button>
             </Link>
-            <Link to="/driver/achievements">
+            <Link to="/driver/achievements" className="shrink-0">
               <Button variant="ghost" size="sm" className="text-[#D4A15A] hover:text-[#FF7A00]">
                 <Trophy className="w-4 h-4 mr-1" /> Conquistas
               </Button>
             </Link>
-            <Link to="/driver/jornada">
+            <Link to="/driver/jornada" className="shrink-0">
               <Button variant="ghost" size="sm" className="text-[#D4A15A] hover:text-[#FF7A00]">
                 <Timer className="w-4 h-4 mr-1" /> Jornada
               </Button>
             </Link>
-            <NotificationsBell driverId={driverId} />
-            <Button variant="ghost" size="sm" onClick={handleLogout} className="text-[#D4A15A] hover:text-[#FF7A00]">
+            <div className="shrink-0">
+              <NotificationsBell driverId={driverId} />
+            </div>
+            <Button variant="ghost" size="sm" onClick={handleLogout} className="text-[#D4A15A] hover:text-[#FF7A00] shrink-0">
               <LogOut className="w-4 h-4" />
             </Button>
           </div>
         </div>
       </header>
+
 
       <main className="max-w-6xl mx-auto px-4 py-6 space-y-6">
         {/* Period filter */}
