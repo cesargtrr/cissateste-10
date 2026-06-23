@@ -33,16 +33,17 @@ export const updateOpeningHours = async (data: {
     is_closed: boolean;
   }[];
 }) => {
-  for (const h of data.hours) {
-    const { error } = await supabase
-      .from("opening_hours")
-      .update({
+  const { error } = await supabase
+    .from("opening_hours")
+    .upsert(
+      data.hours.map((h) => ({
+        day_of_week: h.day_of_week,
         open_time: h.open_time,
         close_time: h.close_time,
         is_closed: h.is_closed,
-      } as any)
-      .eq("day_of_week", h.day_of_week);
-    if (error) throw new Error(error.message);
-  }
+      })) as any,
+      { onConflict: "day_of_week" },
+    );
+  if (error) throw new Error(error.message);
   return { ok: true };
 };
