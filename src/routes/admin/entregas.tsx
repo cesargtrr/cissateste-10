@@ -327,8 +327,16 @@ function EntregasPage() {
             email,
             password: credPassword,
           };
+        const { data: sessionData } = await supabase.auth.getSession();
+        const accessToken = sessionData.session?.access_token;
+        if (!accessToken) {
+          toast.error("Sua sessão expirou. Faça login novamente para cadastrar o entregador.");
+          setSaving(false);
+          return;
+        }
         const { data, error } = await supabase.functions.invoke("admin-create-driver", {
           body: payload,
+          headers: { Authorization: `Bearer ${accessToken}` },
         });
         let authAccessCreated = false;
         if ((data as any)?.error || error) {
