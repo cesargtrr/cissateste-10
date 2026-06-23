@@ -14,6 +14,7 @@ import {
   Utensils,
 } from "lucide-react";
 import { CartButton } from "./CartSheet";
+import cissaLogoAsset from "@/assets/cissaburger-logo.png.asset.json";
 import { ChangeServiceModeButton } from "./ChangeServiceModeButton";
 import { getMenuData } from "@/lib/menu.functions";
 import { formatBRL, parsePrice } from "@/lib/cart-store";
@@ -148,11 +149,14 @@ export function DarkPremiumMenu({ showBack = false }: { showBack?: boolean }) {
               </Link>
             )}
             <Link to="/" className="flex items-center gap-2 min-w-0" aria-label="CISSABURGER">
-              <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground shadow-[0_0_24px_var(--gold-glow)]">
-                <Flame className="h-3.5 w-3.5" />
-              </span>
-              <span className="truncate text-[11px] font-black uppercase tracking-[0.18em] text-foreground">
-                CISSABURGER
+              <img
+                src={cissaLogoAsset.url}
+                alt="CISSABURGER"
+                className="h-8 w-8 shrink-0 rounded-full object-contain drop-shadow-[0_0_12px_var(--gold-glow)]"
+              />
+              <span className="truncate text-[13px] font-black uppercase tracking-[0.18em]">
+                <span className="text-white">CISSA</span>
+                <span className="text-primary">BURGER</span>
               </span>
             </Link>
           </div>
