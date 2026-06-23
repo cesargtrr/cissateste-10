@@ -128,6 +128,97 @@ function classifyDriverCreateError(details: DriverErrorDetails) {
   return { kind: "unknown" as const, message: DRIVER_CREATE_GENERIC_MESSAGE };
 }
 
+async function parseFunctionErrorPayload(error: unknown): Promise<DriverErrorDetails> {
+  const context = (error as any)?.context;
+  let parsed: unknown = null;
+
+  if (context?.json) {
+    try {
+      parsed = await context.json();
+    } catch {
+      parsed = null;
+    }
+  }
+
+  if (!parsed && context?.text) {
+    try {
+      parsed = await context.text();
+    } catch {
+      parsed = null;
+    }
+  }
+
+  const raw = [
+    stringifyErrorPayload(parsed),
+    stringifyErrorPayload((error as any)?.message),
+    stringifyErrorPayload((error as any)?.name),
+    stringifyErrorPayload((error as any)?.status),
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  return {
+    code: typeof parsed === "object" && parsed ? String((parsed as any).code || "") : undefined,
+    raw,
+  };
+}
+
+async function createDriverMetadataFallback(payload: DriverCreatePayload) {
+  const { data: existingAccount, error: accountLookupError } = await supabase
+    .from("delivery_driver_users" as any)
+    .select("id")
+    .eq("email", payload.email)
+    .maybeSingle();
+
+  if (accountLookupError) throw accountLookupError;
+  if (existingAccount) {
+    throw Object.assign(new Error("email_exists"), { code: "email_exists" });
+  }
+
+  const { data: restaurantRow, error: restaurantError } = await supabase
+    .from("restaurants" as any)
+    .select("id")
+    .limit(1)
+    .maybeSingle();
+
+  if (restaurantError) throw restaurantError;
+  const fallbackRestaurantId = (restaurantRow as any)?.id || payload.restaurant_id;
+
+  const { data: driver, error: driverError } = await supabase
+    .from("delivery_drivers" as any)
+    .insert({
+      restaurant_id: fallbackRestaurantId,
+      name: payload.name,
+      phone: payload.phone,
+      tipo_veiculo: payload.tipo_veiculo,
+      placa: payload.placa,
+      observacoes: payload.observacoes,
+      active: payload.active,
+      user_id: null,
+    })
+    .select("id")
+    .single();
+
+  if (driverError) throw driverError;
+
+  const { error: accountError } = await supabase
+    .from("delivery_driver_users" as any)
+    .insert({
+      restaurant_id: fallbackRestaurantId,
+      driver_id: (driver as any).id,
+      email: payload.email,
+      user_id: null,
+      active: payload.active,
+    });
+
+  if (accountError) {
+    await supabase.from("delivery_drivers" as any).delete().eq("id", (driver as any).id);
+    throw accountError;
+  }
+
+  return driver;
+}
+
 function EntregasPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
