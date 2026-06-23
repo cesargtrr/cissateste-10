@@ -334,13 +334,7 @@ export function DarkPremiumMenu({ showBack = false }: { showBack?: boolean }) {
           <Receipt className="h-4 w-4" />
           <span className="text-[9px] font-black uppercase tracking-widest">Histórico</span>
         </button>
-        <button
-          onClick={() => window.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }))}
-          className="flex flex-col items-center gap-1 text-muted-foreground"
-        >
-          <ShoppingCart className="h-4 w-4" />
-          <span className="text-[9px] font-black uppercase tracking-widest">Pedido</span>
-        </button>
+        <CartButton className="mx-auto flex flex-col items-center gap-1 border-0 bg-transparent p-0 text-muted-foreground hover:text-primary" label="Pedido" />
       </nav>
 
       {moreOpen && (
