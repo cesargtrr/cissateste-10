@@ -104,6 +104,10 @@ function stringifyErrorPayload(value: unknown): string {
 function classifyDriverCreateError(details: DriverErrorDetails) {
   const text = `${details.code || ""} ${details.raw || ""}`.toLowerCase();
 
+  if (text.includes("driver_already_exists")) {
+    return { kind: "driver_already_exists" as const, message: DRIVER_ALREADY_EXISTS_MESSAGE };
+  }
+
   if (
     text.includes("email_exists") ||
     text.includes("user already registered") ||
