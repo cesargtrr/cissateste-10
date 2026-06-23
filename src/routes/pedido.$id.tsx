@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { CheckCircle2, ChefHat, Bike, ShoppingBag, Loader2, XCircle, ArrowLeft, Plus, Utensils, PackageCheck, Truck, Inbox } from "lucide-react";
+import { CheckCircle2, ChefHat, Bike, ShoppingBag, Loader2, XCircle, ArrowLeft, Plus, Utensils, Truck, Inbox } from "lucide-react";
 import { getOrderTracking, getMesaSessionOrders } from "@/lib/orders.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { formatBRL } from "@/lib/cart-store";
