@@ -7,10 +7,11 @@ import {
   Flame,
   Home,
   Menu,
+  Package,
   Plus,
-  Receipt,
   Search,
   Star,
+  User,
   Utensils,
 } from "lucide-react";
 import { CartButton } from "./CartSheet";
