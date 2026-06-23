@@ -1,6 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import logoAsset from "@/assets/cissaburger-logo.png.asset.json";
-const logo = logoAsset.url;
+const logo = "/cissaburger-logo.png";
 
 export const OxenteFooter = () => {
   return (

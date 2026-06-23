@@ -1,7 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Tag } from "lucide-react";
-import logoAsset from "@/assets/cissaburger-logo.png.asset.json";
-const logo = logoAsset.url;
+const logo = "/cissaburger-logo.png";
 import { CartButton } from "./CartSheet";
 import { ChangeServiceModeButton } from "./ChangeServiceModeButton";
 
