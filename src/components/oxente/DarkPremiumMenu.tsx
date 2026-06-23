@@ -19,7 +19,7 @@ import cissaLogoAsset from "@/assets/cissaburger-logo.png.asset.json";
 import { ChangeServiceModeButton } from "./ChangeServiceModeButton";
 import { getMenuData } from "@/lib/menu.functions";
 import { formatBRL, parsePrice } from "@/lib/cart-store";
-import { getSavedOrders } from "@/lib/order-history";
+
 
 const ProductCustomization = lazy(() =>
   import("./ProductCustomization").then((m) => ({ default: m.ProductCustomization })),
