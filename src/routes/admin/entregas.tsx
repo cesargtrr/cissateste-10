@@ -236,6 +236,7 @@ function EntregasPage() {
   const [editing, setEditing] = useState<Partial<Entregador> | null>(null);
   const [deleting, setDeleting] = useState<Entregador | null>(null);
   const [credEmail, setCredEmail] = useState("");
+  const [emailError, setEmailError] = useState<string | null>(null);
   const [credPassword, setCredPassword] = useState("");
   const [credPassword2, setCredPassword2] = useState("");
   const [sendWhatsapp, setSendWhatsapp] = useState(false);
