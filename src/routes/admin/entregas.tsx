@@ -161,9 +161,26 @@ function EntregasPage() {
             password: credPassword,
           },
         });
-        if (error) throw error;
-        if ((data as any)?.error) throw new Error((data as any).error);
+        // Try to extract structured error returned by the edge function
+        let fnError: { error?: string; code?: string } | null = null;
+        if (error && (error as any).context?.json) {
+          try { fnError = await (error as any).context.json(); } catch { /* ignore */ }
+        } else if ((data as any)?.error) {
+          fnError = data as any;
+        }
+        if (fnError?.error || error) {
+          const code = fnError?.code;
+          const raw = fnError?.error || (error as any)?.message || "";
+          if (code === "email_exists" || /already|exist|registered|duplicate/i.test(raw)) {
+            toast.error("Este e-mail já está cadastrado para outro usuário/entregador.");
+          } else {
+            toast.error("Não foi possível criar o entregador. Verifique as credenciais ou tente novamente.");
+          }
+          setSaving(false);
+          return;
+        }
         toast.success("Entregador cadastrado com acesso");
+
 
         if (sendWhatsapp && editing.phone) {
           const phone = editing.phone.replace(/\D/g, "");
