@@ -63,26 +63,66 @@ Deno.serve(async (req) => {
     }
     const restaurant_id = restaurantRow.id as string;
 
-    // Create auth user
+    // Create auth user — if it already exists, attempt to recover/link instead of erroring.
     const normalizedEmail = String(email).trim().toLowerCase();
+    let userId: string | null = null;
     const { data: created, error: createErr } = await admin.auth.admin.createUser({
       email: normalizedEmail,
       password,
       email_confirm: true,
     });
+
     if (createErr || !created?.user) {
       const msg = createErr?.message || "Failed to create user";
       const isDuplicate = /already|exist|registered|duplicate/i.test(msg);
       const isPasswordTooShort = /password.*short|password.*at least|weak_password/i.test(msg);
-      return json(
-        {
-          error: msg,
-          code: isDuplicate ? "email_exists" : isPasswordTooShort ? "password_too_short" : "create_user_failed",
-        },
-        isDuplicate ? 409 : 400
-      );
+
+      if (!isDuplicate) {
+        return json(
+          {
+            error: msg,
+            code: isPasswordTooShort ? "password_too_short" : "create_user_failed",
+          },
+          400
+        );
+      }
+
+      // Duplicate email — find the existing auth user and check if a driver row already exists.
+      let existingUserId: string | null = null;
+      for (let page = 1; page <= 20 && !existingUserId; page++) {
+        const { data: list, error: listErr } = await admin.auth.admin.listUsers({ page, perPage: 200 });
+        if (listErr) break;
+        const match = list?.users?.find((u) => (u.email || "").toLowerCase() === normalizedEmail);
+        if (match) existingUserId = match.id;
+        if (!list?.users?.length || list.users.length < 200) break;
+      }
+
+      if (!existingUserId) {
+        return json({ error: msg, code: "email_exists" }, 409);
+      }
+
+      const { data: existingDriver } = await admin
+        .from("delivery_drivers")
+        .select("id, restaurant_id")
+        .eq("user_id", existingUserId)
+        .maybeSingle();
+
+      if (existingDriver) {
+        return json(
+          {
+            error: "Este e-mail já está cadastrado como entregador.",
+            code: "driver_already_exists",
+            driver_id: existingDriver.id,
+          },
+          409
+        );
+      }
+
+      // Orphan auth user — link by creating the missing driver row below.
+      userId = existingUserId;
+    } else {
+      userId = created.user.id;
     }
-    const userId = created.user.id;
 
     // Insert into delivery_drivers
     const { data: driver, error: driverErr } = await admin
@@ -101,8 +141,10 @@ Deno.serve(async (req) => {
       .single();
 
     if (driverErr) {
-      // rollback auth user
-      await admin.auth.admin.deleteUser(userId).catch(() => {});
+      // rollback auth user only if we just created it in this request
+      if (created?.user) {
+        await admin.auth.admin.deleteUser(userId!).catch(() => {});
+      }
       return json({ error: driverErr.message }, 400);
     }
 

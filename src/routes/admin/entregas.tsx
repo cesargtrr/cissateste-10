@@ -51,7 +51,8 @@ const VEHICLE_OPTIONS = [
   { value: "a_pe", label: "A pé" },
 ];
 
-const EMAIL_IN_USE_MESSAGE = "Este e-mail já está sendo utilizado por outro usuário no sistema. Tente usar outro e-mail válido.";
+const EMAIL_IN_USE_MESSAGE = "Este e-mail já está em uso por outro usuário. Escolha outro e-mail para o entregador.";
+const DRIVER_ALREADY_EXISTS_MESSAGE = "Este e-mail já está cadastrado como entregador. Verifique a lista de entregadores.";
 const PASSWORD_TOO_SHORT_MESSAGE = "A senha temporária precisa ter no mínimo 6 caracteres.";
 const DRIVER_CREATE_GENERIC_MESSAGE = "Não foi possível criar o entregador. Verifique as credenciais ou tente novamente.";
 
@@ -102,6 +103,10 @@ function stringifyErrorPayload(value: unknown): string {
 
 function classifyDriverCreateError(details: DriverErrorDetails) {
   const text = `${details.code || ""} ${details.raw || ""}`.toLowerCase();
+
+  if (text.includes("driver_already_exists")) {
+    return { kind: "driver_already_exists" as const, message: DRIVER_ALREADY_EXISTS_MESSAGE };
+  }
 
   if (
     text.includes("email_exists") ||
@@ -231,6 +236,7 @@ function EntregasPage() {
   const [editing, setEditing] = useState<Partial<Entregador> | null>(null);
   const [deleting, setDeleting] = useState<Entregador | null>(null);
   const [credEmail, setCredEmail] = useState("");
+  const [emailError, setEmailError] = useState<string | null>(null);
   const [credPassword, setCredPassword] = useState("");
   const [credPassword2, setCredPassword2] = useState("");
   const [sendWhatsapp, setSendWhatsapp] = useState(false);
@@ -249,11 +255,13 @@ function EntregasPage() {
   }, [navigate]);
 
   // Restaurant id (multi-tenant). Follows the same pattern as admin/pagamento.tsx.
+  // IMPORTANT: drivers are stored with restaurants.id (FK delivery_drivers.restaurant_id -> restaurants.id),
+  // not restaurant_settings.id. Querying the wrong table hides existing drivers from the listing.
   const { data: restaurantId } = useQuery({
-    queryKey: ["restaurant-id"],
+    queryKey: ["restaurant-id-drivers"],
     queryFn: async () => {
       const { data } = await supabase
-        .from("restaurant_settings")
+        .from("restaurants" as any)
         .select("id")
         .limit(1)
         .maybeSingle();
@@ -373,6 +381,9 @@ function EntregasPage() {
               return;
             }
           } else {
+            if (classified.kind === "email_exists" || classified.kind === "driver_already_exists") {
+              setEmailError(classified.message);
+            }
             toast.error(classified.message);
             setSaving(false);
             return;
@@ -393,7 +404,7 @@ function EntregasPage() {
         }
       }
       setEditing(null);
-      setCredEmail(""); setCredPassword(""); setCredPassword2(""); setSendWhatsapp(false);
+      setCredEmail(""); setCredPassword(""); setCredPassword2(""); setSendWhatsapp(false); setEmailError(null);
       qc.invalidateQueries({ queryKey: ["delivery_drivers"] });
     } catch (e: any) {
       toast.error(e?.message || "Erro ao salvar");
@@ -718,10 +729,15 @@ function EntregasPage() {
                     <Input
                       type="email"
                       value={credEmail}
-                      onChange={(ev) => setCredEmail(ev.target.value)}
-                      className="bg-[#1a1a1a] border-[#3A2414]"
+                      onChange={(ev) => { setCredEmail(ev.target.value); if (emailError) setEmailError(null); }}
+                      className={`bg-[#1a1a1a] ${emailError ? "border-red-500 focus-visible:ring-red-500" : "border-[#3A2414]"}`}
+                      aria-invalid={!!emailError}
                     />
+                    {emailError && (
+                      <p className="text-xs text-red-400 mt-1">{emailError}</p>
+                    )}
                   </div>
+
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <Label className="text-xs text-[#D4A15A]">Senha Temporária *</Label>
