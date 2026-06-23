@@ -307,7 +307,7 @@ function EntregasPage() {
           return;
         }
         if (credPassword.length < 6) {
-          toast.error("Senha deve ter no mínimo 6 caracteres");
+          toast.error(PASSWORD_TOO_SHORT_MESSAGE);
           setSaving(false);
           return;
         }
@@ -316,8 +316,7 @@ function EntregasPage() {
           setSaving(false);
           return;
         }
-        const { data, error } = await supabase.functions.invoke("admin-create-driver", {
-          body: {
+        const payload: DriverCreatePayload = {
             restaurant_id: restaurantId,
             name,
             phone: editing.phone?.trim() || null,
@@ -327,27 +326,37 @@ function EntregasPage() {
             active: editing.active ?? true,
             email,
             password: credPassword,
-          },
+          };
+        const { data, error } = await supabase.functions.invoke("admin-create-driver", {
+          body: payload,
         });
-        // Try to extract structured error returned by the edge function
-        let fnError: { error?: string; code?: string } | null = null;
-        if (error && (error as any).context?.json) {
-          try { fnError = await (error as any).context.json(); } catch { /* ignore */ }
-        } else if ((data as any)?.error) {
-          fnError = data as any;
-        }
-        if (fnError?.error || error) {
-          const code = fnError?.code;
-          const raw = fnError?.error || (error as any)?.message || "";
-          if (code === "email_exists" || /already|exist|registered|duplicate/i.test(raw)) {
-            toast.error("Este e-mail já está cadastrado para outro usuário/entregador.");
+        if ((data as any)?.error || error) {
+          const details = error
+            ? await parseFunctionErrorPayload(error)
+            : { code: (data as any)?.code, raw: stringifyErrorPayload(data) };
+          const classified = classifyDriverCreateError(details);
+
+          if (classified.kind === "unknown") {
+            try {
+              await createDriverMetadataFallback(payload);
+              toast.success("Entregador cadastrado no banco. A conta de acesso deverá ser vinculada quando o serviço de autenticação estiver disponível.");
+            } catch (fallbackError: any) {
+              const fallbackClassified = classifyDriverCreateError({
+                code: fallbackError?.code,
+                raw: `${details.raw} ${stringifyErrorPayload(fallbackError)}`,
+              });
+              toast.error(fallbackClassified.message);
+              setSaving(false);
+              return;
+            }
           } else {
-            toast.error("Não foi possível criar o entregador. Verifique as credenciais ou tente novamente.");
+            toast.error(classified.message);
+            setSaving(false);
+            return;
           }
-          setSaving(false);
-          return;
+        } else {
+          toast.success("Entregador cadastrado com acesso");
         }
-        toast.success("Entregador cadastrado com acesso");
 
 
         if (sendWhatsapp && editing.phone) {
