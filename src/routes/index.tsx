@@ -1,13 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { OxenteHero } from "@/components/oxente/Hero";
-import { OxenteLocalizacao } from "@/components/oxente/Localizacao";
-import { OxenteProdutos } from "@/components/oxente/Produtos";
 import { ServiceModeGate } from "@/components/oxente/ServiceModeGate";
 import { OpeningStatusBanner } from "@/components/oxente/OpeningStatusBanner";
 import { OpeningNoticeModal } from "@/components/oxente/OpeningNoticeModal";
+import { DarkPremiumMenu } from "@/components/oxente/DarkPremiumMenu";
 import { ErrorBoundary, type FallbackProps } from "react-error-boundary";
 import { reportLovableError } from "@/lib/lovable-error-reporting";
-import React, { Suspense, useEffect, useState, memo } from "react";
+import React, { useEffect, useState, memo } from "react";
 import { Navigate } from "@tanstack/react-router";
 import { getActiveOrderId, clearActiveOrderId } from "@/lib/order-history";
 import { supabase } from "@/integrations/supabase/client";
@@ -73,14 +71,10 @@ function Index() {
       onError={(error: unknown) => reportLovableError(error, { boundary: "home_index" })}
     >
       <ServiceModeGate>
-        <main className="bg-[#121212] min-h-screen font-sans selection:bg-[#FF7A00] selection:text-[#121212]">
+        <main className="min-h-screen bg-background font-sans selection:bg-primary selection:text-primary-foreground">
           <OpeningStatusBanner />
           <OpeningNoticeModal />
-          <OxenteHero />
-          <Suspense fallback={<div className="h-96 flex items-center justify-center text-[#A3A3A3]">Carregando produtos...</div>}>
-            <OxenteProdutos />
-          </Suspense>
-          <OxenteLocalizacao />
+          <DarkPremiumMenu />
         </main>
       </ServiceModeGate>
     </ErrorBoundary>
@@ -109,13 +103,13 @@ export const Route = createFileRoute("/")({
 
 function ErrorFallback({ error }: FallbackProps) {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#121212] p-5 text-center">
+    <div className="flex min-h-screen items-center justify-center bg-background p-5 text-center">
       <div className="max-w-md space-y-4">
-        <h1 className="text-2xl font-bold text-[#E7D3B1]">Ops! Algo deu errado.</h1>
-        <p className="text-[#A3A3A3] text-sm">{(error as Error)?.message || "Erro desconhecido"}</p>
+        <h1 className="text-2xl font-bold text-foreground">Ops! Algo deu errado.</h1>
+        <p className="text-muted-foreground text-sm">{(error as Error)?.message || "Erro desconhecido"}</p>
         <button 
           onClick={() => window.location.reload()}
-          className="bg-[#FF7A00] text-[#121212] px-6 py-2 rounded-full font-bold"
+          className="bg-primary text-primary-foreground px-6 py-2 rounded-full font-bold"
         >
           Tentar novamente
         </button>
