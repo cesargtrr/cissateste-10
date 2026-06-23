@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { lazy, Suspense, useMemo, useState } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import {
@@ -7,10 +7,11 @@ import {
   Flame,
   Home,
   Menu,
+  Package,
   Plus,
-  Receipt,
   Search,
   Star,
+  User,
   Utensils,
 } from "lucide-react";
 import { CartButton } from "./CartSheet";
@@ -18,7 +19,7 @@ import cissaLogoAsset from "@/assets/cissaburger-logo.png.asset.json";
 import { ChangeServiceModeButton } from "./ChangeServiceModeButton";
 import { getMenuData } from "@/lib/menu.functions";
 import { formatBRL, parsePrice } from "@/lib/cart-store";
-import { getSavedOrders } from "@/lib/order-history";
+
 
 const ProductCustomization = lazy(() =>
   import("./ProductCustomization").then((m) => ({ default: m.ProductCustomization })),
@@ -84,13 +85,10 @@ export function DarkPremiumMenu({ showBack = false }: { showBack?: boolean }) {
     queryKey: ["menuData"],
     queryFn: () => getMenuData(),
   });
-  const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null);
   const [moreOpen, setMoreOpen] = useState(false);
-  const savedOrders = typeof window !== "undefined" ? getSavedOrders() : [];
-  const lastOrder = savedOrders[0];
 
   const categories = useMemo(() => {
     return (data.categories as Category[])
@@ -322,22 +320,30 @@ export function DarkPremiumMenu({ showBack = false }: { showBack?: boolean }) {
         </section>
       </main>
 
-      <nav className="fixed bottom-4 left-1/2 z-40 grid w-[min(21rem,calc(100vw-2rem))] -translate-x-1/2 grid-cols-3 rounded-2xl border border-border bg-card/95 px-4 py-2 shadow-2xl shadow-black/50 backdrop-blur-xl">
+      {/* Floating cart button */}
+      <div className="fixed bottom-24 right-4 z-40">
+        <CartButton className="flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-xs font-black uppercase tracking-widest text-primary-foreground shadow-2xl shadow-black/50 hover:scale-105 transition-transform" label="Pedido" />
+      </div>
+
+      <nav className="fixed bottom-4 left-1/2 z-40 grid w-[min(22rem,calc(100vw-2rem))] -translate-x-1/2 grid-cols-3 rounded-2xl border border-border bg-card/95 px-4 py-2 shadow-2xl shadow-black/50 backdrop-blur-xl">
         <Link to="/" className="flex flex-col items-center gap-1 text-primary">
           <Home className="h-4 w-4" />
-          <span className="text-[9px] font-black uppercase tracking-widest">Home</span>
+          <span className="text-[9px] font-black uppercase tracking-widest">Início</span>
         </Link>
-        <button
-          onClick={() => {
-            if (lastOrder) navigate({ to: "/pedido/$id", params: { id: lastOrder.id } });
-            else setMoreOpen(true);
-          }}
+        <Link
+          to="/meus-pedidos"
           className="flex flex-col items-center gap-1 text-muted-foreground transition-colors hover:text-foreground"
         >
-          <Receipt className="h-4 w-4" />
-          <span className="text-[9px] font-black uppercase tracking-widest">Histórico</span>
-        </button>
-        <CartButton className="mx-auto flex flex-col items-center gap-1 border-0 bg-transparent p-0 text-muted-foreground hover:text-primary" label="Pedido" />
+          <Package className="h-4 w-4" />
+          <span className="text-[9px] font-black uppercase tracking-widest">Meus Pedidos</span>
+        </Link>
+        <Link
+          to="/minha-conta"
+          className="flex flex-col items-center gap-1 text-muted-foreground transition-colors hover:text-foreground"
+        >
+          <User className="h-4 w-4" />
+          <span className="text-[9px] font-black uppercase tracking-widest">Minha Conta</span>
+        </Link>
       </nav>
 
       {moreOpen && (

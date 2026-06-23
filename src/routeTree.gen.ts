@@ -9,6 +9,8 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as MinhaContaRouteImport } from './routes/minha-conta'
+import { Route as MeusPedidosRouteImport } from './routes/meus-pedidos'
 import { Route as DriverRouteImport } from './routes/driver'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as CardapioRouteImport } from './routes/cardapio'
@@ -30,6 +32,16 @@ import { Route as AdminEntregasPedidosRouteImport } from './routes/admin/entrega
 import { Route as AdminEntregadoresMapaRouteImport } from './routes/admin/entregadores.mapa'
 import { Route as AdminEntregadoresAcessosRouteImport } from './routes/admin/entregadores.acessos'
 
+const MinhaContaRoute = MinhaContaRouteImport.update({
+  id: '/minha-conta',
+  path: '/minha-conta',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MeusPedidosRoute = MeusPedidosRouteImport.update({
+  id: '/meus-pedidos',
+  path: '/meus-pedidos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DriverRoute = DriverRouteImport.update({
   id: '/driver',
   path: '/driver',
@@ -138,6 +150,8 @@ export interface FileRoutesByFullPath {
   '/cardapio': typeof CardapioRoute
   '/checkout': typeof CheckoutRoute
   '/driver': typeof DriverRouteWithChildren
+  '/meus-pedidos': typeof MeusPedidosRoute
+  '/minha-conta': typeof MinhaContaRoute
   '/admin/entregas': typeof AdminEntregasRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
   '/admin/pagamento': typeof AdminPagamentoRoute
@@ -159,6 +173,8 @@ export interface FileRoutesByTo {
   '/cardapio': typeof CardapioRoute
   '/checkout': typeof CheckoutRoute
   '/driver': typeof DriverRouteWithChildren
+  '/meus-pedidos': typeof MeusPedidosRoute
+  '/minha-conta': typeof MinhaContaRoute
   '/admin/entregas': typeof AdminEntregasRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
   '/admin/pagamento': typeof AdminPagamentoRoute
@@ -182,6 +198,8 @@ export interface FileRoutesById {
   '/cardapio': typeof CardapioRoute
   '/checkout': typeof CheckoutRoute
   '/driver': typeof DriverRouteWithChildren
+  '/meus-pedidos': typeof MeusPedidosRoute
+  '/minha-conta': typeof MinhaContaRoute
   '/admin/entregas': typeof AdminEntregasRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
   '/admin/pagamento': typeof AdminPagamentoRoute
@@ -206,6 +224,8 @@ export interface FileRouteTypes {
     | '/cardapio'
     | '/checkout'
     | '/driver'
+    | '/meus-pedidos'
+    | '/minha-conta'
     | '/admin/entregas'
     | '/admin/login'
     | '/admin/pagamento'
@@ -227,6 +247,8 @@ export interface FileRouteTypes {
     | '/cardapio'
     | '/checkout'
     | '/driver'
+    | '/meus-pedidos'
+    | '/minha-conta'
     | '/admin/entregas'
     | '/admin/login'
     | '/admin/pagamento'
@@ -249,6 +271,8 @@ export interface FileRouteTypes {
     | '/cardapio'
     | '/checkout'
     | '/driver'
+    | '/meus-pedidos'
+    | '/minha-conta'
     | '/admin/entregas'
     | '/admin/login'
     | '/admin/pagamento'
@@ -272,11 +296,27 @@ export interface RootRouteChildren {
   CardapioRoute: typeof CardapioRoute
   CheckoutRoute: typeof CheckoutRoute
   DriverRoute: typeof DriverRouteWithChildren
+  MeusPedidosRoute: typeof MeusPedidosRoute
+  MinhaContaRoute: typeof MinhaContaRoute
   PedidoIdRoute: typeof PedidoIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/minha-conta': {
+      id: '/minha-conta'
+      path: '/minha-conta'
+      fullPath: '/minha-conta'
+      preLoaderRoute: typeof MinhaContaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/meus-pedidos': {
+      id: '/meus-pedidos'
+      path: '/meus-pedidos'
+      fullPath: '/meus-pedidos'
+      preLoaderRoute: typeof MeusPedidosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/driver': {
       id: '/driver'
       path: '/driver'
@@ -481,6 +521,8 @@ const rootRouteChildren: RootRouteChildren = {
   CardapioRoute: CardapioRoute,
   CheckoutRoute: CheckoutRoute,
   DriverRoute: DriverRouteWithChildren,
+  MeusPedidosRoute: MeusPedidosRoute,
+  MinhaContaRoute: MinhaContaRoute,
   PedidoIdRoute: PedidoIdRoute,
 }
 export const routeTree = rootRouteImport

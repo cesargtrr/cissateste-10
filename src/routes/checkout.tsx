@@ -14,6 +14,7 @@ import { saveOrder, setActiveOrderId } from "@/lib/order-history";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { buildStaticBrCode, isValidBrCode } from "@/lib/pix-brcode";
+import { getCustomerProfile, saveCustomerProfile } from "@/lib/customer-profile";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
@@ -37,15 +38,16 @@ function CheckoutPage() {
   const [kind, setKind] = useState<"delivery" | "retirada">(
     mode?.kind === "retirada" ? "retirada" : "delivery",
   );
-  const [name, setName] = useState(mode?.customerName ?? "");
-  const [whatsapp, setWhatsapp] = useState("");
+  const savedProfile = typeof window !== "undefined" ? getCustomerProfile() : null;
+  const [name, setName] = useState(savedProfile?.name ?? mode?.customerName ?? "");
+  const [whatsapp, setWhatsapp] = useState(savedProfile?.phone ?? "");
   const OTHER_NEIGHBORHOOD = "__other__";
   const [neighborhoodId, setNeighborhoodId] = useState<string>("");
-  const [customNeighborhood, setCustomNeighborhood] = useState("");
-  const [rua, setRua] = useState(mode?.kind === "delivery" ? mode.address : "");
-  const [numero, setNumero] = useState("");
+  const [customNeighborhood, setCustomNeighborhood] = useState(savedProfile?.address?.neighborhood ?? "");
+  const [rua, setRua] = useState(savedProfile?.address?.street ?? (mode?.kind === "delivery" ? mode.address : ""));
+  const [numero, setNumero] = useState(savedProfile?.address?.number ?? "");
   const [complemento, setComplemento] = useState(
-    mode?.kind === "delivery" ? mode.reference : "",
+    savedProfile?.address?.complement ?? (mode?.kind === "delivery" ? mode.reference : ""),
   );
   
   // Novos estados de pagamento
@@ -77,6 +79,23 @@ function CheckoutPage() {
     queryKey: ["delivery-neighborhoods"],
     queryFn: () => listNeighborhoods(),
   });
+
+  // Prefill saved neighborhood once the list is loaded
+  useEffect(() => {
+    if (neighborhoodId || neighborhoods.length === 0 || !savedProfile?.address) return;
+    const savedId = savedProfile.address.neighborhoodId;
+    if (savedId && neighborhoods.some((n) => n.id === savedId)) {
+      setNeighborhoodId(savedId);
+      return;
+    }
+    const savedName = savedProfile.address.neighborhood?.toLowerCase().trim();
+    if (savedName) {
+      const match = neighborhoods.find((n) => n.name.toLowerCase().trim() === savedName);
+      if (match) setNeighborhoodId(match.id);
+      else setNeighborhoodId(OTHER_NEIGHBORHOOD);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [neighborhoods]);
 
   const serviceContext: "delivery" | "pickup" | "dine_in" =
     isMesa ? "dine_in" : kind === "retirada" ? "pickup" : "delivery";
@@ -293,6 +312,17 @@ function CheckoutPage() {
       const res = await createOrder(orderPayload);
       setOrderId(res.id);
       saveOrder({ id: res.id, createdAt: new Date().toISOString(), total: orderTotal });
+      saveCustomerProfile({
+        name,
+        phone: whatsapp,
+        address: kind === "delivery" ? {
+          street: rua,
+          number: numero,
+          complement: complemento,
+          neighborhood: bairroLabel,
+          neighborhoodId: neighborhoodId && neighborhoodId !== OTHER_NEIGHBORHOOD ? neighborhoodId : undefined,
+        } : undefined,
+      });
       setActiveOrderId(res.id);
       setFinalTotal(orderTotal);
       clearCart();
