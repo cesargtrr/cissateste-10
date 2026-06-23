@@ -404,7 +404,7 @@ function EntregasPage() {
         }
       }
       setEditing(null);
-      setCredEmail(""); setCredPassword(""); setCredPassword2(""); setSendWhatsapp(false);
+      setCredEmail(""); setCredPassword(""); setCredPassword2(""); setSendWhatsapp(false); setEmailError(null);
       qc.invalidateQueries({ queryKey: ["delivery_drivers"] });
     } catch (e: any) {
       toast.error(e?.message || "Erro ao salvar");
