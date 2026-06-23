@@ -15,7 +15,7 @@ export const OxenteSobre = () => {
           <h2 className="text-3xl md:text-5xl font-bold text-[#FF7A00] leading-tight">Tradição do sertão, sabor premium</h2>
           <div className="w-16 h-1 bg-[#D4A15A]" />
           <p className="text-[#E7D3B1]/90 leading-relaxed text-base">
-            Nascida no coração do Nordeste e inspirada no estilo Western moderno, a CISSABURGUER traz o melhor da culinária artesanal premium com um toque de rusticidade e sofisticação.
+            Nascida no coração do Nordeste e inspirada no estilo Western moderno, a CISSABURGER traz o melhor da culinária artesanal premium com um toque de rusticidade e sofisticação.
           </p>
           <div className="grid grid-cols-3 gap-3 pt-2">
             <div className="text-center p-3 bg-[#1a1a1a] rounded-xl border border-[#3A2414]">

@@ -10,7 +10,7 @@ export const OxenteAvaliacoes = () => {
             <div className="aspect-[3/4] rounded-2xl overflow-hidden border-2 border-[#D4A15A]/40 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
               <img
                 src="https://images.unsplash.com/photo-1583394293214-28ded15ee548?q=80&w=600&auto=format&fit=crop"
-                alt="Cliente CISSABURGUER"
+                alt="Cliente CISSABURGER"
                 className="w-full h-full object-cover"
               />
             </div>

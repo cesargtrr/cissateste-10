@@ -10,7 +10,7 @@ export const OxenteHero = () => {
     <section className="relative bg-gradient-to-b from-[#1a0e08] to-[#121212] px-5 pt-6 pb-12 border-b border-[#D4A15A]/15">
       {/* Top nav */}
       <div className="max-w-6xl mx-auto flex items-center justify-between mb-6">
-        <img src={logo} alt="CISSABURGUER" className="h-12 w-auto object-contain" {...({ fetchPriority: "high" } as any)} />
+        <img src={logo} alt="CISSABURGER" className="h-12 w-auto object-contain" {...({ fetchPriority: "high" } as any)} />
         <div className="flex items-center gap-3">
           <ChangeServiceModeButton />
           <Link
@@ -75,7 +75,7 @@ export const OxenteHero = () => {
         <div className="relative rounded-3xl overflow-hidden h-[420px] md:h-auto border border-[#D4A15A]/20 shadow-[0_10px_40px_rgba(0,0,0,0.5)] aspect-square md:aspect-auto">
           <img
             src="https://images.unsplash.com/photo-1550547660-d9450f859349?q=80&w=1200&auto=format&fit=crop"
-            alt="Hambúrguer artesanal CISSABURGUER"
+            alt="Hambúrguer artesanal CISSABURGER"
             {...({ fetchPriority: "high" } as any)}
             className="w-full h-full object-cover"
             width="1200"
