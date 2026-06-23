@@ -92,9 +92,9 @@ const MemoizedIndex = memo(Index);
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Oxente Burguer | O Sabor do Nordeste" },
+      { title: "CISSABURGUER | O Sabor do Nordeste" },
       { name: "description", content: "Hamburgueria artesanal premium com sabor nordestino e estilo western moderno." },
-      { property: "og:title", content: "Oxente Burguer" },
+      { property: "og:title", content: "CISSABURGUER" },
       { property: "og:description", content: "Sabor que vem do Nordeste, siô!" },
     ],
   }),

@@ -101,7 +101,7 @@ function LoginPage() {
   return (
     <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center px-5">
       <div className="w-full max-w-sm bg-[#121212] border border-[#3A2414] rounded-2xl p-8">
-        <h1 className="text-2xl font-bold text-[#D4A15A]">Admin Oxente</h1>
+        <h1 className="text-2xl font-bold text-[#D4A15A]">Admin CISSABURGUER</h1>
         <p className="text-sm text-[#A3A3A3] mt-1 mb-6">
           {mode === "login" ? "Entre na sua conta" : "Recuperar senha"}
         </p>

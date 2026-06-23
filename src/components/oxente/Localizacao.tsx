@@ -15,7 +15,7 @@ export const OxenteLocalizacao = () => {
           className="block rounded-2xl border border-[#3A2414] overflow-hidden group relative"
         >
           <iframe
-            title="Oxente Burguer - São Luís-MA"
+            title="CISSABURGUER - São Luís-MA"
             src="https://www.google.com/maps?q=-2.6899352,-44.2994443&z=15&output=embed"
             className="w-full h-64 md:h-80 pointer-events-none"
             loading="lazy"
