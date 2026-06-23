@@ -26,7 +26,7 @@ export const OxenteFooter = () => {
         {/* Columns */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 pt-10 border-t border-[#3A2414]">
           <div className="col-span-2 md:col-span-1 space-y-3">
-            <img src={logo} alt="Oxente Burguer" className="h-12 w-auto object-contain" />
+            <img src={logo} alt="CISSABURGUER" className="h-12 w-auto object-contain" />
             <p className="text-[#A3A3A3] text-xs leading-relaxed max-w-[14rem]">
               Hambúrgueres artesanais com sabor nordestino, feitos com ingredientes selecionados.
             </p>
@@ -61,7 +61,7 @@ export const OxenteFooter = () => {
         </div>
 
         <div className="mt-10 pt-6 border-t border-[#3A2414] flex flex-col md:flex-row items-center justify-between gap-3">
-          <p className="text-[#D4A15A]/50 text-xs">© 2026 Oxente Burguer · Sabor do Sertão 🌵</p>
+          <p className="text-[#D4A15A]/50 text-xs">© 2026 CISSABURGUER · Sabor do Sertão 🌵</p>
           <p className="text-[#D4A15A]/40 text-xs">Feito com fogo no coração do Nordeste</p>
         </div>
       </div>

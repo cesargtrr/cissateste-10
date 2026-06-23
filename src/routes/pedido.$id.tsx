@@ -13,7 +13,7 @@ import type { DriverLocationPoint, GeoPoint } from "@/lib/geo-tracking";
 export const Route = createFileRoute("/pedido/$id")({
   head: () => ({
     meta: [
-      { title: "Status do Pedido — Oxente Burguer" },
+      { title: "Status do Pedido — CISSABURGUER" },
       { name: "description", content: "Acompanhe o status do seu pedido em tempo real." },
     ],
   }),

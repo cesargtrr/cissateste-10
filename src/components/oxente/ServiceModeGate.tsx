@@ -54,7 +54,7 @@ export const ServiceModeGate = ({ children }: { children: React.ReactNode }) => 
         <div className="flex flex-col items-center text-center mb-8">
           <img
             src={oxenteBrand}
-            alt="Oxente Burguer"
+            alt="CISSABURGUER"
             className="w-48 md:w-64 h-auto mb-4 drop-shadow-[0_8px_24px_rgba(255,122,0,0.25)]"
           />
           {storeClosed && openStatus && (

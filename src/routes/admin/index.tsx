@@ -382,7 +382,7 @@ function AdminDashboard() {
             <Flame className="w-5 h-5 text-[#121212]" />
           </div>
           <div>
-            <p className="text-sm font-bold text-[#E7D3B1] leading-tight">Oxente Burguer</p>
+            <p className="text-sm font-bold text-[#E7D3B1] leading-tight">CISSABURGUER</p>
             <p className="text-[10px] uppercase tracking-widest text-[#D4A15A]">Admin</p>
           </div>
         </div>
@@ -441,7 +441,7 @@ function AdminDashboard() {
         <header className="md:hidden border-b border-[#3A2414] px-5 py-4 flex items-center justify-between bg-[#0d0907]/80 backdrop-blur sticky top-0 z-10">
           <div className="flex items-center gap-2">
             <Flame className="w-5 h-5 text-[#FF7A00]" />
-            <span className="font-bold text-[#D4A15A]">Admin Oxente</span>
+            <span className="font-bold text-[#D4A15A]">Admin CISSABURGUER</span>
           </div>
           <Button variant="ghost" size="sm" onClick={handleLogout} className="text-[#E7D3B1]">
             <LogOut className="w-4 h-4" />
@@ -2508,7 +2508,7 @@ function OrderDetailsDialog({ order, onClose, menuItems, qc, onStatusChange }: a
       const customerName = (order.customer_name || "Cliente").slice(0, 50);
       
       const trackingUrl = `${window.location.origin}/pedido/${order.id}`;
-      const message = `Olá, *${customerName}*! Seu pedido na Oxente Burguer já foi recebido com sucesso! 🌵🍔 Para acompanhar o preparo e a entrega em tempo real, clique no seu link de rastreio exclusivo: ${trackingUrl}. Obrigado pela preferência! ❤️`;
+      const message = `Olá, *${customerName}*! Seu pedido na CISSABURGUER já foi recebido com sucesso! 🌵🍔 Para acompanhar o preparo e a entrega em tempo real, clique no seu link de rastreio exclusivo: ${trackingUrl}. Obrigado pela preferência! ❤️`;
 
       const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
       window.open(whatsappUrl, "_blank", "noopener,noreferrer");
@@ -4111,7 +4111,7 @@ function PrintTicket({ order, sector, menuItems }: { order: any, sector?: string
       <div style={{ textAlign: "center", paddingTop: "4px", paddingBottom: "10px" }}>
         <img
           src={oxenteLogo}
-          alt="Oxente Burguer"
+          alt="CISSABURGUER"
           style={{
             width: "120px",
             maxWidth: "100%",
@@ -4352,7 +4352,7 @@ function PrintTicket({ order, sector, menuItems }: { order: any, sector?: string
         }}
       >
         <Globe size={13} strokeWidth={1.8} />
-        oxenteburguer.com.br
+        cissaburguer.com.br
       </div>
     </div>
   );
@@ -4386,7 +4386,7 @@ function PrintLabel({ order }: { order: any }) {
       >
         <img
           src={oxenteLogo}
-          alt="Oxente Burguer"
+          alt="CISSABURGUER"
           style={{
             width: "120px",
             maxWidth: "100%",

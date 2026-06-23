@@ -18,7 +18,7 @@ import { buildStaticBrCode, isValidBrCode } from "@/lib/pix-brcode";
 export const Route = createFileRoute("/checkout")({
   head: () => ({
     meta: [
-      { title: "Checkout — Oxente Burguer" },
+      { title: "Checkout — CISSABURGUER" },
       { name: "description", content: "Finalize seu pedido com segurança." },
     ],
   }),
