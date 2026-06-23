@@ -30,7 +30,7 @@ import {
 } from "@/lib/settings.functions";
 import { listOpeningHours, updateOpeningHours } from "@/lib/opening-hours.functions";
 import { computeOpenStatus } from "@/lib/opening-hours-status";
-const oxenteLogo = "/cissaburger-logo.png";
+const oxenteLogo = "https://shrydnbjxoblnglbexzd.supabase.co/storage/v1/object/public/product-images/branding/cissaburger-logo.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
