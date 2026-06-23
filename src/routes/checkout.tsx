@@ -38,15 +38,16 @@ function CheckoutPage() {
   const [kind, setKind] = useState<"delivery" | "retirada">(
     mode?.kind === "retirada" ? "retirada" : "delivery",
   );
-  const [name, setName] = useState(mode?.customerName ?? "");
-  const [whatsapp, setWhatsapp] = useState("");
+  const savedProfile = typeof window !== "undefined" ? getCustomerProfile() : null;
+  const [name, setName] = useState(savedProfile?.name ?? mode?.customerName ?? "");
+  const [whatsapp, setWhatsapp] = useState(savedProfile?.phone ?? "");
   const OTHER_NEIGHBORHOOD = "__other__";
   const [neighborhoodId, setNeighborhoodId] = useState<string>("");
-  const [customNeighborhood, setCustomNeighborhood] = useState("");
-  const [rua, setRua] = useState(mode?.kind === "delivery" ? mode.address : "");
-  const [numero, setNumero] = useState("");
+  const [customNeighborhood, setCustomNeighborhood] = useState(savedProfile?.address?.neighborhood ?? "");
+  const [rua, setRua] = useState(savedProfile?.address?.street ?? (mode?.kind === "delivery" ? mode.address : ""));
+  const [numero, setNumero] = useState(savedProfile?.address?.number ?? "");
   const [complemento, setComplemento] = useState(
-    mode?.kind === "delivery" ? mode.reference : "",
+    savedProfile?.address?.complement ?? (mode?.kind === "delivery" ? mode.reference : ""),
   );
   
   // Novos estados de pagamento
