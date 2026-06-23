@@ -125,7 +125,11 @@ function classifyDriverCreateError(details: DriverErrorDetails) {
     return { kind: "password_too_short" as const, message: PASSWORD_TOO_SHORT_MESSAGE };
   }
 
-  return { kind: "unknown" as const, message: DRIVER_CREATE_GENERIC_MESSAGE };
+  const realMessage = (details.raw || "").trim();
+  return {
+    kind: "unknown" as const,
+    message: realMessage ? `Erro ao criar entregador: ${realMessage}` : DRIVER_CREATE_GENERIC_MESSAGE,
+  };
 }
 
 async function parseFunctionErrorPayload(error: unknown): Promise<DriverErrorDetails> {
@@ -334,27 +338,37 @@ function EntregasPage() {
           setSaving(false);
           return;
         }
+        console.log("[create-driver] payload:", { ...payload, password: "***" });
         const { data, error } = await supabase.functions.invoke("admin-create-driver", {
           body: payload,
           headers: { Authorization: `Bearer ${accessToken}` },
         });
+        console.log("[create-driver] edge function response:", { data, error });
         let authAccessCreated = false;
         if ((data as any)?.error || error) {
           const details = error
             ? await parseFunctionErrorPayload(error)
             : { code: (data as any)?.code, raw: stringifyErrorPayload(data) };
+          console.error("[create-driver] error details:", details, { rawError: error, rawData: data });
           const classified = classifyDriverCreateError(details);
 
           if (classified.kind === "unknown") {
             try {
+              console.log("[create-driver] trying metadata fallback...");
               await createDriverMetadataFallback(payload);
               toast.success("Entregador cadastrado no banco. A conta de acesso deverá ser vinculada quando o serviço de autenticação estiver disponível.");
             } catch (fallbackError: any) {
+              console.error("[create-driver] fallback failed:", fallbackError);
+              const fallbackRaw = `${details.raw} ${stringifyErrorPayload(fallbackError)}`.trim();
               const fallbackClassified = classifyDriverCreateError({
                 code: fallbackError?.code,
-                raw: `${details.raw} ${stringifyErrorPayload(fallbackError)}`,
+                raw: fallbackRaw,
               });
-              toast.error(fallbackClassified.message);
+              const finalMessage =
+                fallbackClassified.kind === "unknown"
+                  ? `Erro ao criar entregador: ${fallbackError?.message || fallbackRaw || "erro desconhecido"}`
+                  : fallbackClassified.message;
+              toast.error(finalMessage);
               setSaving(false);
               return;
             }
@@ -365,6 +379,7 @@ function EntregasPage() {
           }
         } else {
           authAccessCreated = true;
+          console.log("[create-driver] success:", data);
           toast.success("Entregador cadastrado com acesso");
         }
 
