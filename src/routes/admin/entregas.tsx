@@ -249,11 +249,13 @@ function EntregasPage() {
   }, [navigate]);
 
   // Restaurant id (multi-tenant). Follows the same pattern as admin/pagamento.tsx.
+  // IMPORTANT: drivers are stored with restaurants.id (FK delivery_drivers.restaurant_id -> restaurants.id),
+  // not restaurant_settings.id. Querying the wrong table hides existing drivers from the listing.
   const { data: restaurantId } = useQuery({
-    queryKey: ["restaurant-id"],
+    queryKey: ["restaurant-id-drivers"],
     queryFn: async () => {
       const { data } = await supabase
-        .from("restaurant_settings")
+        .from("restaurants" as any)
         .select("id")
         .limit(1)
         .maybeSingle();
