@@ -147,12 +147,12 @@ export function DarkPremiumMenu({ showBack = false }: { showBack?: boolean }) {
                 <ChevronLeft className="h-5 w-5" />
               </Link>
             )}
-            <Link to="/" className="flex items-center gap-2 min-w-0" aria-label="CISSABURGUER">
+            <Link to="/" className="flex items-center gap-2 min-w-0" aria-label="CISSABURGER">
               <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground shadow-[0_0_24px_var(--gold-glow)]">
                 <Flame className="h-3.5 w-3.5" />
               </span>
               <span className="truncate text-[11px] font-black uppercase tracking-[0.18em] text-foreground">
-                CISSABURGUER
+                CISSABURGER
               </span>
             </Link>
           </div>
@@ -254,7 +254,7 @@ export function DarkPremiumMenu({ showBack = false }: { showBack?: boolean }) {
                           <span className="min-w-0">
                             <span className="block text-sm font-black leading-tight text-foreground">{item.name}</span>
                             <span className="mt-1 line-clamp-2 block text-[11px] leading-relaxed text-muted-foreground">
-                              {item.description || "Produto artesanal CISSABURGUER."}
+                              {item.description || "Produto artesanal CISSABURGER."}
                             </span>
                           </span>
                           <span className="mt-3 text-xs font-black text-primary">

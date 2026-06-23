@@ -79,7 +79,7 @@ export const OxenteLinks = () => {
       </div>
 
       <p className="text-center text-[#A3A3A3]/60 text-xs mt-8">
-        © {new Date().getFullYear()} CISSABURGUER
+        © {new Date().getFullYear()} CISSABURGER
       </p>
     </section>
   );

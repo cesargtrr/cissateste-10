@@ -2,7 +2,7 @@ const MENU_ITEMS = [
   { name: "Sertão Burguer", price: "R$ 38", desc: "Blend 180g, queijo coalho grelhado, mel de engenho e cebola caramelizada." },
   { name: "Cangaço Prime", price: "R$ 42", desc: "Blend 180g, carne de sol desfiada, queijo manteiga e maionese de coentro." },
   { name: "Mandacaru Veg", price: "R$ 35", desc: "Hambúrguer de grão de bico, queijo coalho, alface, tomate e molho especial." },
-  { name: "CISSABURGUER Bacon", price: "R$ 40", desc: "Blend 180g, muito bacon crocante, cheddar inglês e barbecue artesanal." },
+  { name: "CISSABURGER Bacon", price: "R$ 40", desc: "Blend 180g, muito bacon crocante, cheddar inglês e barbecue artesanal." },
 ];
 
 export const OxenteCardapio = () => {

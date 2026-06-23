@@ -86,9 +86,9 @@ const MemoizedIndex = memo(Index);
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "CISSABURGUER | O Sabor do Nordeste" },
+      { title: "CISSABURGER | O Sabor do Nordeste" },
       { name: "description", content: "Hamburgueria artesanal premium com sabor nordestino e estilo western moderno." },
-      { property: "og:title", content: "CISSABURGUER" },
+      { property: "og:title", content: "CISSABURGER" },
       { property: "og:description", content: "Sabor que vem do Nordeste, siô!" },
     ],
   }),
