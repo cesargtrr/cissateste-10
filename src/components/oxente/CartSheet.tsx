@@ -48,7 +48,7 @@ function ErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
   );
 }
 
-export const CartButton = ({ className = "" }: { className?: string }) => {
+export const CartButton = ({ className = "", label }: { className?: string; label?: string }) => {
   const [open, setOpen] = useState(false);
   const { items, count, total: subtotal } = useCart();
   const mode = useServiceMode();
@@ -167,11 +167,12 @@ export const CartButton = ({ className = "" }: { className?: string }) => {
         <button
           aria-label="Abrir carrinho"
           disabled={isClosed}
-          className={`relative p-2.5 rounded-full bg-[#1a1a1a] border border-[#D4A15A]/25 text-[#D4A15A] hover:text-[#FF7A00] hover:border-[#FF7A00] transition-colors disabled:opacity-0 disabled:pointer-events-none ${className}`}
+          className={`relative p-2.5 rounded-full bg-card border border-border text-primary hover:text-primary hover:border-primary transition-colors disabled:opacity-0 disabled:pointer-events-none ${className}`}
         >
           <ShoppingCart className="w-5 h-5" />
+          {label && <span className="text-[9px] font-black uppercase tracking-widest">{label}</span>}
           {count > 0 && (
-            <span className="absolute -top-1 -right-1 bg-[#FF7A00] text-[#121212] text-[10px] font-bold min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center">
+            <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-[10px] font-bold min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center">
               {count}
             </span>
           )}
