@@ -183,7 +183,7 @@ function DriverPortal() {
         )
         .or(
           `delivery_driver_id.eq.${driverId},` +
-            `and(delivery_driver_id.is.null,delivery_status.in.(pedido_recebido,pronto_para_entrega))`,
+            `and(delivery_driver_id.is.null,or(delivery_status.in.(pedido_recebido,em_preparo,pronto_para_entrega),status.in.(preparing,ready)))`,
         )
         .not("delivery_address", "is", null)
         .not("status", "in", "(cancelled,completed)")

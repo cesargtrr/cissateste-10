@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { CheckCircle2, ChefHat, Bike, ShoppingBag, Loader2, XCircle, ArrowLeft, Plus, Utensils, PackageCheck, Truck, Inbox } from "lucide-react";
+import { CheckCircle2, ChefHat, Bike, ShoppingBag, Loader2, XCircle, ArrowLeft, Plus, Utensils, Truck, Inbox } from "lucide-react";
 import { getOrderTracking, getMesaSessionOrders } from "@/lib/orders.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { formatBRL } from "@/lib/cart-store";
@@ -513,7 +513,6 @@ function TrackingPage() {
 const DELIVERY_STEPS = [
   { key: "pedido_recebido", label: "Pedido Recebido", Icon: CheckCircle2 },
   { key: "em_preparo", label: "Em Preparo", Icon: ChefHat },
-  { key: "pronto_para_entrega", label: "Pronto para Entrega", Icon: PackageCheck },
   { key: "saiu_para_entrega", label: "Saiu para Entrega", Icon: Bike },
   { key: "entregue", label: "Entregue", Icon: CheckCircle2 },
 ] as const;
@@ -521,8 +520,8 @@ const DELIVERY_STEPS = [
 function normalizeDeliveryStatus(order: any): string {
   const ds = order?.delivery_status as string | null | undefined;
   if (ds) {
-    // Map legacy values to new vocabulary
-    if (ds === "aguardando_entregador") return "pronto_para_entrega";
+    // Map legacy/intermediate values to the simplified customer-facing vocabulary
+    if (ds === "aguardando_entregador" || ds === "pronto_para_entrega") return "em_preparo";
     if (ds === "em_entrega") return "saiu_para_entrega";
     return ds;
   }
@@ -531,7 +530,7 @@ function normalizeDeliveryStatus(order: any): string {
   switch (st) {
     case "pending": return "pedido_recebido";
     case "preparing": return "em_preparo";
-    case "ready": return "pronto_para_entrega";
+    case "ready": return "em_preparo";
     case "delivered": return "saiu_para_entrega";
     case "completed": return "entregue";
     default: return "pedido_recebido";
