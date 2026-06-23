@@ -3,7 +3,8 @@ import { useState, useEffect } from "react";
 import { Utensils, ShoppingBag, ArrowLeft, User, ArrowRight } from "lucide-react";
 import { setServiceMode, useServiceMode } from "@/lib/service-mode-store";
 import { getRestaurantSettings } from "@/lib/settings.functions";
-import oxenteBrand from "@/assets/oxente-brand.png";
+import oxenteBrandAsset from "@/assets/cissaburger-logo.png.asset.json";
+const oxenteBrand = oxenteBrandAsset.url;
 import { useStoreOpenStatus } from "./OpeningStatusBanner";
 
 export const ServiceModeGate = ({ children }: { children: React.ReactNode }) => {
