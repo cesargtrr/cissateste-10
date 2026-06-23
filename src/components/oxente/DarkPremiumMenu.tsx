@@ -15,7 +15,7 @@ import {
   Utensils,
 } from "lucide-react";
 import { CartButton } from "./CartSheet";
-const cissaLogoAsset = { url: "/cissaburger-logo.png" };
+const cissaLogoAsset = { url: "https://shrydnbjxoblnglbexzd.supabase.co/storage/v1/object/public/product-images/branding/cissaburger-logo.png" };
 import { ChangeServiceModeButton } from "./ChangeServiceModeButton";
 import { getMenuData } from "@/lib/menu.functions";
 import { formatBRL, parsePrice } from "@/lib/cart-store";
