@@ -80,6 +80,23 @@ function CheckoutPage() {
     queryFn: () => listNeighborhoods(),
   });
 
+  // Prefill saved neighborhood once the list is loaded
+  useEffect(() => {
+    if (neighborhoodId || neighborhoods.length === 0 || !savedProfile?.address) return;
+    const savedId = savedProfile.address.neighborhoodId;
+    if (savedId && neighborhoods.some((n) => n.id === savedId)) {
+      setNeighborhoodId(savedId);
+      return;
+    }
+    const savedName = savedProfile.address.neighborhood?.toLowerCase().trim();
+    if (savedName) {
+      const match = neighborhoods.find((n) => n.name.toLowerCase().trim() === savedName);
+      if (match) setNeighborhoodId(match.id);
+      else setNeighborhoodId(OTHER_NEIGHBORHOOD);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [neighborhoods]);
+
   const serviceContext: "delivery" | "pickup" | "dine_in" =
     isMesa ? "dine_in" : kind === "retirada" ? "pickup" : "delivery";
 
