@@ -125,7 +125,11 @@ function classifyDriverCreateError(details: DriverErrorDetails) {
     return { kind: "password_too_short" as const, message: PASSWORD_TOO_SHORT_MESSAGE };
   }
 
-  return { kind: "unknown" as const, message: DRIVER_CREATE_GENERIC_MESSAGE };
+  const realMessage = (details.raw || "").trim();
+  return {
+    kind: "unknown" as const,
+    message: realMessage ? `Erro ao criar entregador: ${realMessage}` : DRIVER_CREATE_GENERIC_MESSAGE,
+  };
 }
 
 async function parseFunctionErrorPayload(error: unknown): Promise<DriverErrorDetails> {
