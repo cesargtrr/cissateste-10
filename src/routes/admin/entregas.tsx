@@ -726,10 +726,15 @@ function EntregasPage() {
                     <Input
                       type="email"
                       value={credEmail}
-                      onChange={(ev) => setCredEmail(ev.target.value)}
-                      className="bg-[#1a1a1a] border-[#3A2414]"
+                      onChange={(ev) => { setCredEmail(ev.target.value); if (emailError) setEmailError(null); }}
+                      className={`bg-[#1a1a1a] ${emailError ? "border-red-500 focus-visible:ring-red-500" : "border-[#3A2414]"}`}
+                      aria-invalid={!!emailError}
                     />
+                    {emailError && (
+                      <p className="text-xs text-red-400 mt-1">{emailError}</p>
+                    )}
                   </div>
+
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <Label className="text-xs text-[#D4A15A]">Senha Temporária *</Label>
