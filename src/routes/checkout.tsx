@@ -14,6 +14,7 @@ import { saveOrder, setActiveOrderId } from "@/lib/order-history";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { buildStaticBrCode, isValidBrCode } from "@/lib/pix-brcode";
+import { getCustomerProfile, saveCustomerProfile } from "@/lib/customer-profile";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
