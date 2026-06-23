@@ -51,7 +51,8 @@ const VEHICLE_OPTIONS = [
   { value: "a_pe", label: "A pé" },
 ];
 
-const EMAIL_IN_USE_MESSAGE = "Este e-mail já está sendo utilizado por outro usuário no sistema. Tente usar outro e-mail válido.";
+const EMAIL_IN_USE_MESSAGE = "Este e-mail já está em uso por outro usuário. Escolha outro e-mail para o entregador.";
+const DRIVER_ALREADY_EXISTS_MESSAGE = "Este e-mail já está cadastrado como entregador. Verifique a lista de entregadores.";
 const PASSWORD_TOO_SHORT_MESSAGE = "A senha temporária precisa ter no mínimo 6 caracteres.";
 const DRIVER_CREATE_GENERIC_MESSAGE = "Não foi possível criar o entregador. Verifique as credenciais ou tente novamente.";
 
