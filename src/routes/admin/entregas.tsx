@@ -51,6 +51,174 @@ const VEHICLE_OPTIONS = [
   { value: "a_pe", label: "A pé" },
 ];
 
+const EMAIL_IN_USE_MESSAGE = "Este e-mail já está sendo utilizado por outro usuário no sistema. Tente usar outro e-mail válido.";
+const PASSWORD_TOO_SHORT_MESSAGE = "A senha temporária precisa ter no mínimo 6 caracteres.";
+const DRIVER_CREATE_GENERIC_MESSAGE = "Não foi possível criar o entregador. Verifique as credenciais ou tente novamente.";
+
+type DriverCreatePayload = {
+  restaurant_id: string;
+  name: string;
+  phone: string | null;
+  tipo_veiculo: string | null;
+  placa: string | null;
+  observacoes: string | null;
+  active: boolean;
+  email: string;
+  password: string;
+};
+
+type DriverErrorDetails = {
+  code?: string;
+  raw: string;
+};
+
+function stringifyErrorPayload(value: unknown): string {
+  if (!value) return "";
+  if (typeof value === "string") return value;
+  if (value instanceof Error) return value.message;
+  if (typeof value === "object") {
+    const obj = value as Record<string, unknown>;
+    const parts = [
+      obj.code,
+      obj.error,
+      obj.message,
+      obj.msg,
+      obj.details,
+      obj.hint,
+      obj.status,
+    ]
+      .map((part) => stringifyErrorPayload(part))
+      .filter(Boolean);
+
+    if (parts.length) return parts.join(" ");
+    try {
+      return JSON.stringify(value);
+    } catch {
+      return String(value);
+    }
+  }
+  return String(value);
+}
+
+function classifyDriverCreateError(details: DriverErrorDetails) {
+  const text = `${details.code || ""} ${details.raw || ""}`.toLowerCase();
+
+  if (
+    text.includes("email_exists") ||
+    text.includes("user already registered") ||
+    text.includes("already registered") ||
+    text.includes("already been registered") ||
+    text.includes("email already") ||
+    (text.includes("duplicate") && text.includes("email")) ||
+    (text.includes("already") && text.includes("exist"))
+  ) {
+    return { kind: "email_exists" as const, message: EMAIL_IN_USE_MESSAGE };
+  }
+
+  if (
+    text.includes("password_too_short") ||
+    text.includes("weak_password") ||
+    text.includes("password too short") ||
+    text.includes("password should be at least") ||
+    (text.includes("password") && text.includes("6"))
+  ) {
+    return { kind: "password_too_short" as const, message: PASSWORD_TOO_SHORT_MESSAGE };
+  }
+
+  return { kind: "unknown" as const, message: DRIVER_CREATE_GENERIC_MESSAGE };
+}
+
+async function parseFunctionErrorPayload(error: unknown): Promise<DriverErrorDetails> {
+  const context = (error as any)?.context;
+  let parsed: unknown = null;
+
+  if (context?.json) {
+    try {
+      parsed = await context.json();
+    } catch {
+      parsed = null;
+    }
+  }
+
+  if (!parsed && context?.text) {
+    try {
+      parsed = await context.text();
+    } catch {
+      parsed = null;
+    }
+  }
+
+  const raw = [
+    stringifyErrorPayload(parsed),
+    stringifyErrorPayload((error as any)?.message),
+    stringifyErrorPayload((error as any)?.name),
+    stringifyErrorPayload((error as any)?.status),
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  return {
+    code: typeof parsed === "object" && parsed ? String((parsed as any).code || "") : undefined,
+    raw,
+  };
+}
+
+async function createDriverMetadataFallback(payload: DriverCreatePayload) {
+  const { data: existingAccount, error: accountLookupError } = await supabase
+    .from("delivery_driver_users" as any)
+    .select("id")
+    .eq("email", payload.email)
+    .maybeSingle();
+
+  if (accountLookupError) throw accountLookupError;
+  if (existingAccount) {
+    throw Object.assign(new Error("email_exists"), { code: "email_exists" });
+  }
+
+  const { data: restaurantRow, error: restaurantError } = await supabase
+    .from("restaurants" as any)
+    .select("id")
+    .limit(1)
+    .maybeSingle();
+
+  if (restaurantError) throw restaurantError;
+  const fallbackRestaurantId = (restaurantRow as any)?.id || payload.restaurant_id;
+
+  const { data: driver, error: driverError } = await supabase
+    .from("delivery_drivers" as any)
+    .insert({
+      restaurant_id: fallbackRestaurantId,
+      name: payload.name,
+      phone: payload.phone,
+      tipo_veiculo: payload.tipo_veiculo,
+      placa: payload.placa,
+      observacoes: payload.observacoes,
+      active: payload.active,
+      user_id: null,
+    })
+    .select("id")
+    .single();
+
+  if (driverError) throw driverError;
+
+  const { error: accountError } = await supabase
+    .from("delivery_driver_users" as any)
+    .insert({
+      restaurant_id: fallbackRestaurantId,
+      driver_id: (driver as any).id,
+      email: payload.email,
+      user_id: null,
+      active: payload.active,
+    });
+
+  if (accountError) {
+    await supabase.from("delivery_drivers" as any).delete().eq("id", (driver as any).id);
+    throw accountError;
+  }
+
+  return driver;
+}
+
 function EntregasPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
@@ -139,7 +307,7 @@ function EntregasPage() {
           return;
         }
         if (credPassword.length < 6) {
-          toast.error("Senha deve ter no mínimo 6 caracteres");
+          toast.error(PASSWORD_TOO_SHORT_MESSAGE);
           setSaving(false);
           return;
         }
@@ -148,8 +316,7 @@ function EntregasPage() {
           setSaving(false);
           return;
         }
-        const { data, error } = await supabase.functions.invoke("admin-create-driver", {
-          body: {
+        const payload: DriverCreatePayload = {
             restaurant_id: restaurantId,
             name,
             phone: editing.phone?.trim() || null,
@@ -159,30 +326,50 @@ function EntregasPage() {
             active: editing.active ?? true,
             email,
             password: credPassword,
-          },
-        });
-        // Try to extract structured error returned by the edge function
-        let fnError: { error?: string; code?: string } | null = null;
-        if (error && (error as any).context?.json) {
-          try { fnError = await (error as any).context.json(); } catch { /* ignore */ }
-        } else if ((data as any)?.error) {
-          fnError = data as any;
-        }
-        if (fnError?.error || error) {
-          const code = fnError?.code;
-          const raw = fnError?.error || (error as any)?.message || "";
-          if (code === "email_exists" || /already|exist|registered|duplicate/i.test(raw)) {
-            toast.error("Este e-mail já está cadastrado para outro usuário/entregador.");
-          } else {
-            toast.error("Não foi possível criar o entregador. Verifique as credenciais ou tente novamente.");
-          }
+          };
+        const { data: sessionData } = await supabase.auth.getSession();
+        const accessToken = sessionData.session?.access_token;
+        if (!accessToken) {
+          toast.error("Sua sessão expirou. Faça login novamente para cadastrar o entregador.");
           setSaving(false);
           return;
         }
-        toast.success("Entregador cadastrado com acesso");
+        const { data, error } = await supabase.functions.invoke("admin-create-driver", {
+          body: payload,
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        let authAccessCreated = false;
+        if ((data as any)?.error || error) {
+          const details = error
+            ? await parseFunctionErrorPayload(error)
+            : { code: (data as any)?.code, raw: stringifyErrorPayload(data) };
+          const classified = classifyDriverCreateError(details);
+
+          if (classified.kind === "unknown") {
+            try {
+              await createDriverMetadataFallback(payload);
+              toast.success("Entregador cadastrado no banco. A conta de acesso deverá ser vinculada quando o serviço de autenticação estiver disponível.");
+            } catch (fallbackError: any) {
+              const fallbackClassified = classifyDriverCreateError({
+                code: fallbackError?.code,
+                raw: `${details.raw} ${stringifyErrorPayload(fallbackError)}`,
+              });
+              toast.error(fallbackClassified.message);
+              setSaving(false);
+              return;
+            }
+          } else {
+            toast.error(classified.message);
+            setSaving(false);
+            return;
+          }
+        } else {
+          authAccessCreated = true;
+          toast.success("Entregador cadastrado com acesso");
+        }
 
 
-        if (sendWhatsapp && editing.phone) {
+        if (authAccessCreated && sendWhatsapp && editing.phone) {
           const phone = editing.phone.replace(/\D/g, "");
           const msg = encodeURIComponent(
             `Olá ${name}! Suas credenciais de acesso ao app de entregador:\n\nEmail: ${email}\nSenha: ${credPassword}\n\nAcesse e altere sua senha no primeiro login.`
