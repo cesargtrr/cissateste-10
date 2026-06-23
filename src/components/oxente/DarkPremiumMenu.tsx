@@ -85,13 +85,10 @@ export function DarkPremiumMenu({ showBack = false }: { showBack?: boolean }) {
     queryKey: ["menuData"],
     queryFn: () => getMenuData(),
   });
-  const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null);
   const [moreOpen, setMoreOpen] = useState(false);
-  const savedOrders = typeof window !== "undefined" ? getSavedOrders() : [];
-  const lastOrder = savedOrders[0];
 
   const categories = useMemo(() => {
     return (data.categories as Category[])
