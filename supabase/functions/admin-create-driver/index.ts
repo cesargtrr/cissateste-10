@@ -12,7 +12,13 @@ Deno.serve(async (req) => {
 
     const url = Deno.env.get("SUPABASE_URL")!;
     const anon = Deno.env.get("SUPABASE_ANON_KEY")!;
-    const service = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const service = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    if (!service) {
+      return json(
+        { error: "Service role key is not configured for driver creation", code: "service_role_missing" },
+        500
+      );
+    }
 
     const userClient = createClient(url, anon, {
       global: { headers: { Authorization: authHeader } },
@@ -41,7 +47,7 @@ Deno.serve(async (req) => {
       return json({ error: "Missing required fields" }, 400);
     }
     if (String(password).length < 6) {
-      return json({ error: "Password must be at least 6 chars" }, 400);
+      return json({ error: "Password too short", code: "password_too_short" }, 400);
     }
 
     // Resolve restaurant_id from the restaurants table (single-tenant).
@@ -67,8 +73,12 @@ Deno.serve(async (req) => {
     if (createErr || !created?.user) {
       const msg = createErr?.message || "Failed to create user";
       const isDuplicate = /already|exist|registered|duplicate/i.test(msg);
+      const isPasswordTooShort = /password.*short|password.*at least|weak_password/i.test(msg);
       return json(
-        { error: msg, code: isDuplicate ? "email_exists" : "create_user_failed" },
+        {
+          error: msg,
+          code: isDuplicate ? "email_exists" : isPasswordTooShort ? "password_too_short" : "create_user_failed",
+        },
         isDuplicate ? 409 : 400
       );
     }
