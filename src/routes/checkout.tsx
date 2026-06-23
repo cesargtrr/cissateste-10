@@ -295,6 +295,17 @@ function CheckoutPage() {
       const res = await createOrder(orderPayload);
       setOrderId(res.id);
       saveOrder({ id: res.id, createdAt: new Date().toISOString(), total: orderTotal });
+      saveCustomerProfile({
+        name,
+        phone: whatsapp,
+        address: kind === "delivery" ? {
+          street: rua,
+          number: numero,
+          complement: complemento,
+          neighborhood: bairroLabel,
+          neighborhoodId: neighborhoodId && neighborhoodId !== OTHER_NEIGHBORHOOD ? neighborhoodId : undefined,
+        } : undefined,
+      });
       setActiveOrderId(res.id);
       setFinalTotal(orderTotal);
       clearCart();
