@@ -51,6 +51,83 @@ const VEHICLE_OPTIONS = [
   { value: "a_pe", label: "A pé" },
 ];
 
+const EMAIL_IN_USE_MESSAGE = "Este e-mail já está sendo utilizado por outro usuário no sistema. Tente usar outro e-mail válido.";
+const PASSWORD_TOO_SHORT_MESSAGE = "A senha temporária precisa ter no mínimo 6 caracteres.";
+const DRIVER_CREATE_GENERIC_MESSAGE = "Não foi possível criar o entregador. Verifique as credenciais ou tente novamente.";
+
+type DriverCreatePayload = {
+  restaurant_id: string;
+  name: string;
+  phone: string | null;
+  tipo_veiculo: string | null;
+  placa: string | null;
+  observacoes: string | null;
+  active: boolean;
+  email: string;
+  password: string;
+};
+
+type DriverErrorDetails = {
+  code?: string;
+  raw: string;
+};
+
+function stringifyErrorPayload(value: unknown): string {
+  if (!value) return "";
+  if (typeof value === "string") return value;
+  if (value instanceof Error) return value.message;
+  if (typeof value === "object") {
+    const obj = value as Record<string, unknown>;
+    const parts = [
+      obj.code,
+      obj.error,
+      obj.message,
+      obj.msg,
+      obj.details,
+      obj.hint,
+      obj.status,
+    ]
+      .map((part) => stringifyErrorPayload(part))
+      .filter(Boolean);
+
+    if (parts.length) return parts.join(" ");
+    try {
+      return JSON.stringify(value);
+    } catch {
+      return String(value);
+    }
+  }
+  return String(value);
+}
+
+function classifyDriverCreateError(details: DriverErrorDetails) {
+  const text = `${details.code || ""} ${details.raw || ""}`.toLowerCase();
+
+  if (
+    text.includes("email_exists") ||
+    text.includes("user already registered") ||
+    text.includes("already registered") ||
+    text.includes("already been registered") ||
+    text.includes("email already") ||
+    (text.includes("duplicate") && text.includes("email")) ||
+    (text.includes("already") && text.includes("exist"))
+  ) {
+    return { kind: "email_exists" as const, message: EMAIL_IN_USE_MESSAGE };
+  }
+
+  if (
+    text.includes("password_too_short") ||
+    text.includes("weak_password") ||
+    text.includes("password too short") ||
+    text.includes("password should be at least") ||
+    (text.includes("password") && text.includes("6"))
+  ) {
+    return { kind: "password_too_short" as const, message: PASSWORD_TOO_SHORT_MESSAGE };
+  }
+
+  return { kind: "unknown" as const, message: DRIVER_CREATE_GENERIC_MESSAGE };
+}
+
 function EntregasPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
