@@ -2315,14 +2315,19 @@ function OpeningHoursPanel({ qc }: { qc: any }) {
   const [rows, setRows] = useState<Array<{ day_of_week: number; open_time: string; close_time: string; is_closed: boolean }>>([]);
 
   useEffect(() => {
-    if (data && data.length === 7) {
-      setRows(data.map((d) => ({
-        day_of_week: d.day_of_week,
-        open_time: d.open_time,
-        close_time: d.close_time,
-        is_closed: d.is_closed,
-      })));
-    }
+    if (!data) return;
+    const byDay = new Map(data.map((d) => [d.day_of_week, d]));
+    setRows(
+      Array.from({ length: 7 }, (_, i) => {
+        const existing = byDay.get(i);
+        return {
+          day_of_week: i,
+          open_time: existing?.open_time ?? "18:00",
+          close_time: existing?.close_time ?? "23:00",
+          is_closed: existing?.is_closed ?? false,
+        };
+      }),
+    );
   }, [data]);
 
   const saveMut = useMutation({
