@@ -58,13 +58,19 @@ Deno.serve(async (req) => {
     const restaurant_id = restaurantRow.id as string;
 
     // Create auth user
+    const normalizedEmail = String(email).trim().toLowerCase();
     const { data: created, error: createErr } = await admin.auth.admin.createUser({
-      email: String(email).trim().toLowerCase(),
+      email: normalizedEmail,
       password,
       email_confirm: true,
     });
     if (createErr || !created?.user) {
-      return json({ error: createErr?.message || "Failed to create user" }, 400);
+      const msg = createErr?.message || "Failed to create user";
+      const isDuplicate = /already|exist|registered|duplicate/i.test(msg);
+      return json(
+        { error: msg, code: isDuplicate ? "email_exists" : "create_user_failed" },
+        isDuplicate ? 409 : 400
+      );
     }
     const userId = created.user.id;
 
