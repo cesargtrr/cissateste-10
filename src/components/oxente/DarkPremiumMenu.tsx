@@ -10,7 +10,6 @@ import {
   Plus,
   Receipt,
   Search,
-  ShoppingCart,
   Star,
   Utensils,
 } from "lucide-react";
