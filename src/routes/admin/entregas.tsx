@@ -381,6 +381,9 @@ function EntregasPage() {
               return;
             }
           } else {
+            if (classified.kind === "email_exists" || classified.kind === "driver_already_exists") {
+              setEmailError(classified.message);
+            }
             toast.error(classified.message);
             setSaving(false);
             return;
