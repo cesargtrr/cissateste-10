@@ -330,6 +330,7 @@ function EntregasPage() {
         const { data, error } = await supabase.functions.invoke("admin-create-driver", {
           body: payload,
         });
+        let authAccessCreated = false;
         if ((data as any)?.error || error) {
           const details = error
             ? await parseFunctionErrorPayload(error)
@@ -355,11 +356,12 @@ function EntregasPage() {
             return;
           }
         } else {
+          authAccessCreated = true;
           toast.success("Entregador cadastrado com acesso");
         }
 
 
-        if (sendWhatsapp && editing.phone) {
+        if (authAccessCreated && sendWhatsapp && editing.phone) {
           const phone = editing.phone.replace(/\D/g, "");
           const msg = encodeURIComponent(
             `Olá ${name}! Suas credenciais de acesso ao app de entregador:\n\nEmail: ${email}\nSenha: ${credPassword}\n\nAcesse e altere sua senha no primeiro login.`
