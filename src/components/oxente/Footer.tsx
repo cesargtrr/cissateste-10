@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-const logo = "/cissaburger-logo.png";
+const logo = "https://shrydnbjxoblnglbexzd.supabase.co/storage/v1/object/public/product-images/branding/cissaburger-logo.png";
 
 export const OxenteFooter = () => {
   return (
