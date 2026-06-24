@@ -580,7 +580,7 @@ function OrderCard({ order, onUpdate, compact }: { order: Order; onUpdate: (id: 
       </div>
       {!compact && (
         <div className="flex gap-2 mt-3">
-          {(status === "aguardando_entregador" || status === "pronto_para_entrega" || status === "pedido_recebido" || status === "em_preparo") && (
+          {(status === "aguardando_entregador" || status === "pronto_para_entrega") && (
             <Button size="sm" onClick={() => onUpdate(order.id, "saiu_para_entrega")} className="bg-[#FF7A00] hover:bg-[#FF7A00]/90 text-black font-semibold flex-1">
               <Truck className="w-3.5 h-3.5 mr-1" /> Saiu para Entrega
             </Button>
