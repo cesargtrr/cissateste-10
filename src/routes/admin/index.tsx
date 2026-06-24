@@ -317,18 +317,26 @@ function AdminDashboard() {
     );
   }
 
-  const nav = [
+  const deliveryModuleEnabled =
+    (restaurantSettings as any)?.delivery_module_enabled === undefined
+      ? true
+      : Boolean((restaurantSettings as any).delivery_module_enabled);
+
+  const nav = ([
     { id: "overview", label: "Dashboard", icon: BarChart3 },
     { id: "pos", label: "Comandas (Mesas)", icon: Utensils },
     { id: "orders", label: "Pedidos", icon: ShoppingBag },
     { id: "products", label: "Produtos e Itens", icon: Package },
     { id: "stock", label: "Controle de Estoque", icon: Boxes },
     { id: "customers", label: "Clientes", icon: Users },
-    { id: "entregas", label: "Entregas", icon: Bike, href: "/admin/entregas" },
+    ...(deliveryModuleEnabled
+      ? [{ id: "entregas", label: "Entregas", icon: Bike, href: "/admin/entregas" }]
+      : []),
     { id: "finance", label: "Financeiro", icon: Wallet },
     { id: "marketing", label: "Fidelidade", icon: Heart },
     { id: "settings", label: "Configurações", icon: Settings },
-  ] as const;
+  ] as const);
+
 
 
 
