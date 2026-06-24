@@ -204,13 +204,35 @@ function TrackingPage() {
     return isFinal(status) && status === "completed";
   }, [isMesa, mesaData, status]);
 
-  // 60s countdown → wipe client storage and redirect home.
+  // If the order was completed more than 60s ago, redirect to home immediately
+  // without rendering stale tracking UI.
+  const completedAtRaw =
+    (data as any)?.delivery_completed_at ?? (data as any)?.updated_at ?? null;
+  const isFinishedStatus =
+    data?.status === "completed" || data?.status === "delivered";
+  const isOldFinished =
+    isFinishedStatus &&
+    !!completedAtRaw &&
+    Date.now() - new Date(completedAtRaw as any).getTime() > 60_000;
+
   useEffect(() => {
-    if (!allFinished) {
+    if (isOldFinished && typeof window !== "undefined") {
+      try { clearActiveOrderId(); } catch {}
+      window.location.replace("/");
+    }
+  }, [isOldFinished]);
+
+  // Show thank-you only when the order just finished while the page is open
+  // (or the customer opened it within 60s of completion).
+  const showThankYou = allFinished && !isOldFinished;
+
+  // 10s countdown → wipe client storage and redirect home.
+  useEffect(() => {
+    if (!showThankYou) {
       setSecondsLeft(null);
       return;
     }
-    setSecondsLeft(60);
+    setSecondsLeft(10);
     const interval = setInterval(() => {
       setSecondsLeft((s) => (s === null ? null : Math.max(0, s - 1)));
     }, 1000);
@@ -222,7 +244,6 @@ function TrackingPage() {
           try { localStorage.removeItem("oxente-cart-v1"); } catch {}
           try { localStorage.removeItem("oxente-orders-v1"); } catch {}
           try { sessionStorage.clear(); } catch {}
-          // Best-effort cookie wipe for current path
           try {
             document.cookie.split(";").forEach((c) => {
               const name = c.split("=")[0].trim();
@@ -237,12 +258,12 @@ function TrackingPage() {
           window.location.replace("/");
         }
       }
-    }, 60_000);
+    }, 10_000);
     return () => {
       clearInterval(interval);
       clearTimeout(timeout);
     };
-  }, [allFinished]);
+  }, [showThankYou]);
 
   if (isLoading) {
     return (
@@ -271,6 +292,48 @@ function TrackingPage() {
       </div>
     );
   }
+
+  if (isOldFinished) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center text-[#E7D3B1]">
+        <Loader2 className="w-8 h-8 animate-spin text-[#FF7A00]" />
+      </div>
+    );
+  }
+
+  if (showThankYou) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0a] text-[#E7D3B1] flex items-center justify-center px-4">
+        <div className="max-w-md w-full text-center bg-[#121212] border border-[#FF7A00]/40 rounded-2xl p-8 shadow-2xl shadow-[#FF7A00]/10">
+          <div className="text-5xl mb-3">🍔</div>
+          <h1 className="text-2xl font-extrabold text-[#FF7A00]">
+            Pedido Entregue!
+          </h1>
+          <p className="text-sm text-[#E7D3B1] mt-3">
+            Muito obrigado pela preferência
+            {data?.customer_name ? `, ${data.customer_name}` : ""}. Bom apetite!
+          </p>
+          {secondsLeft !== null && (
+            <p className="text-xs text-[#A3A3A3] mt-5">
+              Redirecionando em{" "}
+              <span className="font-mono text-[#FF7A00]">
+                {String(secondsLeft).padStart(2, "0")}s
+              </span>
+              ...
+            </p>
+          )}
+          <Link
+            to="/"
+            className="inline-flex items-center gap-2 mt-6 bg-[#FF7A00] text-[#0a0a0a] font-bold px-5 py-2 rounded-full text-sm"
+          >
+            Voltar para o início
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-[#E7D3B1]">
