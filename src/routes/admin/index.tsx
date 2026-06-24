@@ -2439,6 +2439,7 @@ function OpeningHoursPanel({ qc }: { qc: any }) {
 
 function OrderDetailsDialog({ order, onClose, menuItems, qc, onStatusChange }: any) {
   const isDelivery = order.source === "delivery";
+  const { enabled: deliveryModuleEnabled } = useDeliveryModuleEnabled();
   const [showPayment, setShowPayment] = useState(false);
   const [printType, setPrintType] = useState<null | "ticket" | "label">(null);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
@@ -2477,11 +2478,32 @@ function OrderDetailsDialog({ order, onClose, menuItems, qc, onStatusChange }: a
   }, [printType]);
 
   const isMesa = order.source === "mesa";
+  // Driver workflow active for delivery orders when the driver module is on.
+  // In this mode the Admin only controls up to "PRONTO PARA ENTREGADOR".
+  // "SAIU PARA ENTREGA" and "CONCLUÍDO" become read-only — only the driver
+  // can advance those states.
+  const driverWorkflow = isDelivery && deliveryModuleEnabled;
+  const READY_DS = new Set([
+    "pronto_para_entrega",
+    "aguardando_entregador",
+    "em_entrega",
+    "saiu_para_entrega",
+    "entregue",
+  ]);
+  const isReadyForDelivery = READY_DS.has(order.delivery_status);
+  const driverAccepted = driverWorkflow && !!order.delivery_driver_id;
+
   const statusOptions: { key: string; label: string }[] = isMesa
     ? [
         { key: "pending", label: "PEDIDO RECEBIDO" },
         { key: "preparing", label: "EM PREPARO" },
         { key: "ready", label: "PRONTO PARA MESA" },
+      ]
+    : driverWorkflow
+    ? [
+        { key: "pending", label: "PEDIDO RECEBIDO" },
+        { key: "preparing", label: "EM PREPARO" },
+        { key: "ready_for_delivery", label: "PRONTO PARA ENTREGADOR" },
       ]
     : [
         { key: "pending", label: "PEDIDO RECEBIDO" },
@@ -2502,6 +2524,22 @@ function OrderDetailsDialog({ order, onClose, menuItems, qc, onStatusChange }: a
       toast.success("Status atualizado");
     },
     onError: (e: any) => toast.error(e?.message || "Falha ao atualizar status"),
+  });
+
+  const readyForDeliveryMut = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase
+        .from("orders")
+        .update({ delivery_status: "pronto_para_entrega" } as any)
+        .eq("id", order.id);
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: () => {
+      onStatusChange?.(order.status);
+      qc?.invalidateQueries({ queryKey: ["admin", "all"] });
+      toast.success("Liberado para entregadores");
+    },
+    onError: (e: any) => toast.error(e?.message || "Falha ao liberar"),
   });
 
   const cancelMut = useMutation({
@@ -2531,7 +2569,10 @@ function OrderDetailsDialog({ order, onClose, menuItems, qc, onStatusChange }: a
   });
 
   const handleStatusClick = (nextStatus: string) => {
-    // Apenas atualiza o banco de dados silenciosamente
+    if (nextStatus === "ready_for_delivery") {
+      readyForDeliveryMut.mutate();
+      return;
+    }
     statusMut.mutate({ status: nextStatus });
   };
 
