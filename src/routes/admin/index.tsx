@@ -1978,6 +1978,22 @@ function SettingsTab({ qc }: { qc: any }) {
     onError: (e: any) => toast.error(e.message),
   });
 
+  const deliveryModuleMut = useMutation({
+    mutationFn: (value: boolean) =>
+      updateRestaurantSettings({
+        total_tables: parseInt(total, 10) || data?.total_tables || 10,
+        delivery_module_enabled: value,
+      }),
+    onSuccess: (_r, value) => {
+      setDeliveryModuleEnabled(value);
+      qc.invalidateQueries({ queryKey: ["restaurant-settings"] });
+      qc.invalidateQueries({ queryKey: ["delivery-module-enabled"] });
+      toast.success(value ? "Módulo de entregadores ativado" : "Módulo de entregadores desativado");
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+
   // Neighborhoods CRUD
   const { data: neighborhoods = [] } = useQuery({
     queryKey: ["delivery-neighborhoods"],
