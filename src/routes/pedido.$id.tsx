@@ -35,7 +35,7 @@ function TrackingPage() {
   const [liveStatus, setLiveStatus] = useState<OrderStatus | null>(null);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
-  const { enabled: deliveryModuleEnabled } = useDeliveryModuleEnabled();
+
 
 
   const { data, isLoading, refetch } = useQuery({
