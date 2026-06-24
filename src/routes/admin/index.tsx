@@ -1911,6 +1911,8 @@ function SettingsTab({ qc }: { qc: any }) {
   const [avisoTitulo, setAvisoTitulo] = useState<string>("");
   const [avisoMensagem, setAvisoMensagem] = useState<string>("");
   const [avisoLink, setAvisoLink] = useState<string>("");
+  const [deliveryModuleEnabled, setDeliveryModuleEnabled] = useState<boolean>(true);
+
 
   useEffect(() => {
     if (data) {
