@@ -547,6 +547,8 @@ function DeliveryTracking({ orderId, order }: { orderId: string; order: any }) {
   const [items, setItems] = useState<Array<{ id: string; quantity: number; unit_price: number; menu_item_id: string | null; name?: string | null }>>([]);
   const [driverLocation, setDriverLocation] = useState<DriverLocationPoint | null>(null);
   const [customerPoint, setCustomerPoint] = useState<GeoPoint | null>(null);
+  const { enabled: deliveryModuleEnabled } = useDeliveryModuleEnabled();
+
 
   const currentStatus = normalizeDeliveryStatus(order);
   const stepIndex = DELIVERY_STEPS.findIndex((s) => s.key === currentStatus);
