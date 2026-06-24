@@ -2248,6 +2248,24 @@ function SettingsTab({ qc }: { qc: any }) {
         </div>
       </div>
 
+      <div className="bg-[#121212] border border-[#3A2414] rounded-2xl p-5 max-w-md space-y-3">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <h2 className="text-lg font-bold text-[#E7D3B1]">Módulo de Entregadores</h2>
+            <p className="text-xs text-[#A3A3A3]">
+              Quando desligado, oculta a tela do entregador, o mapa de acompanhamento do cliente e o menu "Entregas" no painel admin.
+            </p>
+          </div>
+          <Switch
+            checked={deliveryModuleEnabled}
+            onCheckedChange={(v) => deliveryModuleMut.mutate(v)}
+            disabled={deliveryModuleMut.isPending}
+          />
+        </div>
+      </div>
+
+
+
 
       {/* 
       <div className="bg-[#121212] border border-[#D4A15A]/30 rounded-2xl p-5 max-w-md space-y-3">
