@@ -8,7 +8,9 @@ import { formatBRL } from "@/lib/cart-store";
 import { saveOrder, getSavedOrders, setActiveOrderId, clearActiveOrderId } from "@/lib/order-history";
 import { setServiceMode } from "@/lib/service-mode-store";
 import { LiveDeliveryMap } from "@/components/oxente/LiveDeliveryMap";
+import { useDeliveryModuleEnabled } from "@/hooks/useDeliveryModule";
 import type { DriverLocationPoint, GeoPoint } from "@/lib/geo-tracking";
+
 
 export const Route = createFileRoute("/pedido/$id")({
   head: () => ({
