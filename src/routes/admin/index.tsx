@@ -66,6 +66,7 @@ import {
 } from "@/lib/cash.functions";
 import { ComandasTab } from "@/components/admin/ComandasTab";
 import { StockTab } from "@/components/admin/StockTab";
+import { useDeliveryModuleEnabled } from "@/hooks/useDeliveryModule";
 
 export const Route = createFileRoute("/admin/")({
   component: AdminPage,
