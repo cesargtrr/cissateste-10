@@ -8,7 +8,9 @@ import { formatBRL } from "@/lib/cart-store";
 import { saveOrder, getSavedOrders, setActiveOrderId, clearActiveOrderId } from "@/lib/order-history";
 import { setServiceMode } from "@/lib/service-mode-store";
 import { LiveDeliveryMap } from "@/components/oxente/LiveDeliveryMap";
+import { useDeliveryModuleEnabled } from "@/hooks/useDeliveryModule";
 import type { DriverLocationPoint, GeoPoint } from "@/lib/geo-tracking";
+
 
 export const Route = createFileRoute("/pedido/$id")({
   head: () => ({
@@ -33,6 +35,8 @@ function TrackingPage() {
   const [liveStatus, setLiveStatus] = useState<OrderStatus | null>(null);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
+
+
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["order-tracking", id],
@@ -543,6 +547,8 @@ function DeliveryTracking({ orderId, order }: { orderId: string; order: any }) {
   const [items, setItems] = useState<Array<{ id: string; quantity: number; unit_price: number; menu_item_id: string | null; name?: string | null }>>([]);
   const [driverLocation, setDriverLocation] = useState<DriverLocationPoint | null>(null);
   const [customerPoint, setCustomerPoint] = useState<GeoPoint | null>(null);
+  const { enabled: deliveryModuleEnabled } = useDeliveryModuleEnabled();
+
 
   const currentStatus = normalizeDeliveryStatus(order);
   const stepIndex = DELIVERY_STEPS.findIndex((s) => s.key === currentStatus);
@@ -719,13 +725,16 @@ function DeliveryTracking({ orderId, order }: { orderId: string; order: any }) {
         </div>
       )}
 
-      <LiveDeliveryMap
-        driverLocation={driverLocation}
-        customerPoint={customerPoint}
-        customerAddress={order?.delivery_address || null}
-        status={DELIVERY_STEPS.find((s) => s.key === currentStatus)?.label || currentStatus}
-        onRequestCustomerPoint={requestCustomerPoint}
-      />
+      {deliveryModuleEnabled && (
+        <LiveDeliveryMap
+          driverLocation={driverLocation}
+          customerPoint={customerPoint}
+          customerAddress={order?.delivery_address || null}
+          status={DELIVERY_STEPS.find((s) => s.key === currentStatus)?.label || currentStatus}
+          onRequestCustomerPoint={requestCustomerPoint}
+        />
+      )}
+
 
       {history.length > 0 && (
         <details className="mt-5 pt-5 border-t border-[#3A2414]">

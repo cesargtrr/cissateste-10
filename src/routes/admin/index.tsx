@@ -317,18 +317,26 @@ function AdminDashboard() {
     );
   }
 
-  const nav = [
+  const deliveryModuleEnabled =
+    (restaurantSettings as any)?.delivery_module_enabled === undefined
+      ? true
+      : Boolean((restaurantSettings as any).delivery_module_enabled);
+
+  const nav = ([
     { id: "overview", label: "Dashboard", icon: BarChart3 },
     { id: "pos", label: "Comandas (Mesas)", icon: Utensils },
     { id: "orders", label: "Pedidos", icon: ShoppingBag },
     { id: "products", label: "Produtos e Itens", icon: Package },
     { id: "stock", label: "Controle de Estoque", icon: Boxes },
     { id: "customers", label: "Clientes", icon: Users },
-    { id: "entregas", label: "Entregas", icon: Bike, href: "/admin/entregas" },
+    ...(deliveryModuleEnabled
+      ? [{ id: "entregas", label: "Entregas", icon: Bike, href: "/admin/entregas" }]
+      : []),
     { id: "finance", label: "Financeiro", icon: Wallet },
     { id: "marketing", label: "Fidelidade", icon: Heart },
     { id: "settings", label: "Configurações", icon: Settings },
-  ] as const;
+  ] as const);
+
 
 
 
@@ -1911,6 +1919,8 @@ function SettingsTab({ qc }: { qc: any }) {
   const [avisoTitulo, setAvisoTitulo] = useState<string>("");
   const [avisoMensagem, setAvisoMensagem] = useState<string>("");
   const [avisoLink, setAvisoLink] = useState<string>("");
+  const [deliveryModuleEnabled, setDeliveryModuleEnabled] = useState<boolean>(true);
+
 
   useEffect(() => {
     if (data) {
@@ -1922,8 +1932,14 @@ function SettingsTab({ qc }: { qc: any }) {
       setAvisoTitulo(String((data as any).aviso_titulo ?? ""));
       setAvisoMensagem(String((data as any).aviso_mensagem ?? ""));
       setAvisoLink(String((data as any).aviso_link ?? ""));
+      setDeliveryModuleEnabled(
+        (data as any).delivery_module_enabled === undefined
+          ? true
+          : Boolean((data as any).delivery_module_enabled),
+      );
     }
   }, [data]);
+
 
   const saveMut = useMutation({
     mutationFn: () =>
@@ -1969,6 +1985,22 @@ function SettingsTab({ qc }: { qc: any }) {
     },
     onError: (e: any) => toast.error(e.message),
   });
+
+  const deliveryModuleMut = useMutation({
+    mutationFn: (value: boolean) =>
+      updateRestaurantSettings({
+        total_tables: parseInt(total, 10) || data?.total_tables || 10,
+        delivery_module_enabled: value,
+      }),
+    onSuccess: (_r, value) => {
+      setDeliveryModuleEnabled(value);
+      qc.invalidateQueries({ queryKey: ["restaurant-settings"] });
+      qc.invalidateQueries({ queryKey: ["delivery-module-enabled"] });
+      toast.success(value ? "Módulo de entregadores ativado" : "Módulo de entregadores desativado");
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
 
   // Neighborhoods CRUD
   const { data: neighborhoods = [] } = useQuery({
@@ -2223,6 +2255,24 @@ function SettingsTab({ qc }: { qc: any }) {
           />
         </div>
       </div>
+
+      <div className="bg-[#121212] border border-[#3A2414] rounded-2xl p-5 max-w-md space-y-3">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <h2 className="text-lg font-bold text-[#E7D3B1]">Módulo de Entregadores</h2>
+            <p className="text-xs text-[#A3A3A3]">
+              Quando desligado, oculta a tela do entregador, o mapa de acompanhamento do cliente e o menu "Entregas" no painel admin.
+            </p>
+          </div>
+          <Switch
+            checked={deliveryModuleEnabled}
+            onCheckedChange={(v) => deliveryModuleMut.mutate(v)}
+            disabled={deliveryModuleMut.isPending}
+          />
+        </div>
+      </div>
+
+
 
 
       {/* 

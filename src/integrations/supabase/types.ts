@@ -1751,6 +1751,7 @@ export type Database = {
           aviso_titulo: string | null
           default_neighborhood_fee: number
           delivery_fee: number
+          delivery_module_enabled: boolean
           force_closed: boolean
           id: string
           limite_virada_caixa: string
@@ -1764,6 +1765,7 @@ export type Database = {
           aviso_titulo?: string | null
           default_neighborhood_fee?: number
           delivery_fee?: number
+          delivery_module_enabled?: boolean
           force_closed?: boolean
           id?: string
           limite_virada_caixa?: string
@@ -1777,6 +1779,7 @@ export type Database = {
           aviso_titulo?: string | null
           default_neighborhood_fee?: number
           delivery_fee?: number
+          delivery_module_enabled?: boolean
           force_closed?: boolean
           id?: string
           limite_virada_caixa?: string

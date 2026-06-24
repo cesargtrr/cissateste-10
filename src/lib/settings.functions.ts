@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 export const getRestaurantSettings = async () => {
   const { data, error } = await supabase
     .from("restaurant_settings")
-    .select("id, total_tables, delivery_fee, default_neighborhood_fee, force_closed, limite_virada_caixa, aviso_titulo, aviso_mensagem, aviso_link, aviso_ativo")
+    .select("id, total_tables, delivery_fee, default_neighborhood_fee, force_closed, limite_virada_caixa, aviso_titulo, aviso_mensagem, aviso_link, aviso_ativo, delivery_module_enabled")
     .order("updated_at", { ascending: false })
     .limit(1)
     .maybeSingle();
@@ -19,9 +19,11 @@ export const getRestaurantSettings = async () => {
     aviso_mensagem: ((data as any)?.aviso_mensagem ?? "") as string,
     aviso_link: ((data as any)?.aviso_link ?? "") as string,
     aviso_ativo: Boolean((data as any)?.aviso_ativo ?? false),
+    delivery_module_enabled: (data as any)?.delivery_module_enabled === undefined ? true : Boolean((data as any).delivery_module_enabled),
     id: data?.id ?? null,
   };
 };
+
 
 export const updateRestaurantSettings = async (data: {
   total_tables: number;
@@ -33,6 +35,7 @@ export const updateRestaurantSettings = async (data: {
   aviso_mensagem?: string | null;
   aviso_link?: string | null;
   aviso_ativo?: boolean;
+  delivery_module_enabled?: boolean;
 }) => {
   const { data: existing } = await supabase
     .from("restaurant_settings")
@@ -54,6 +57,7 @@ export const updateRestaurantSettings = async (data: {
   if (data.aviso_mensagem !== undefined) patch.aviso_mensagem = data.aviso_mensagem;
   if (data.aviso_link !== undefined) patch.aviso_link = data.aviso_link;
   if (data.aviso_ativo !== undefined) patch.aviso_ativo = data.aviso_ativo;
+  if (data.delivery_module_enabled !== undefined) patch.delivery_module_enabled = data.delivery_module_enabled;
 
   if (existing) {
     const { error } = await supabase
@@ -69,6 +73,7 @@ export const updateRestaurantSettings = async (data: {
   }
   return { ok: true };
 };
+
 
 const orderItemSchema = z.object({
   menu_item_id: z.string().uuid().nullable().optional(),

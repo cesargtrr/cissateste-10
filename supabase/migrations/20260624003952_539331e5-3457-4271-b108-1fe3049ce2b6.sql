@@ -1,0 +1,1 @@
+ALTER TABLE public.restaurant_settings ADD COLUMN IF NOT EXISTS delivery_module_enabled boolean NOT NULL DEFAULT true;

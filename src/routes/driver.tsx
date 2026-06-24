@@ -11,6 +11,8 @@ import { Badge } from "@/components/ui/badge";
 import { DriverLocationPoint, distanceMeters } from "@/lib/geo-tracking";
 import { useDriverLocationTracker } from "@/hooks/useDriverLocationTracker";
 import { useStoreOpenStatus } from "@/components/oxente/OpeningStatusBanner";
+import { useDeliveryModuleEnabled } from "@/hooks/useDeliveryModule";
+
 
 export const Route = createFileRoute("/driver")({
   component: DriverPortalRoute,
@@ -42,6 +44,30 @@ const STATUS_LABEL: Record<string, string> = {
 function DriverPortalRoute() {
   const matchRoute = useMatchRoute();
   const isNestedDriverRoute = Boolean(matchRoute({ to: "/driver/dashboard", fuzzy: true }));
+  const { enabled: deliveryModuleEnabled, isLoading: moduleLoading } = useDeliveryModuleEnabled();
+
+  if (moduleLoading) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0a] text-[#E7D3B1] flex items-center justify-center">
+        <Loader2 className="w-6 h-6 animate-spin text-[#FF7A00]" />
+      </div>
+    );
+  }
+
+  if (!deliveryModuleEnabled) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0a] text-[#E7D3B1] flex items-center justify-center p-6">
+        <div className="max-w-md text-center space-y-3">
+          <Bike className="w-12 h-12 text-[#FF7A00] mx-auto" />
+          <h1 className="text-xl font-bold">Módulo indisponível</h1>
+          <p className="text-sm text-[#A3A3A3]">
+            O módulo de entregadores está desativado pelo administrador.
+          </p>
+          <Link to="/" className="inline-block text-[#FF7A00] underline text-sm">Voltar ao início</Link>
+        </div>
+      </div>
+    );
+  }
 
   if (isNestedDriverRoute) {
     return <Outlet />;
@@ -49,6 +75,7 @@ function DriverPortalRoute() {
 
   return <DriverPortal />;
 }
+
 
 function DriverPortal() {
   const navigate = useNavigate();
