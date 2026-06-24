@@ -293,6 +293,48 @@ function TrackingPage() {
     );
   }
 
+  if (isOldFinished) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center text-[#E7D3B1]">
+        <Loader2 className="w-8 h-8 animate-spin text-[#FF7A00]" />
+      </div>
+    );
+  }
+
+  if (showThankYou) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0a] text-[#E7D3B1] flex items-center justify-center px-4">
+        <div className="max-w-md w-full text-center bg-[#121212] border border-[#FF7A00]/40 rounded-2xl p-8 shadow-2xl shadow-[#FF7A00]/10">
+          <div className="text-5xl mb-3">🍔</div>
+          <h1 className="text-2xl font-extrabold text-[#FF7A00]">
+            Pedido Entregue!
+          </h1>
+          <p className="text-sm text-[#E7D3B1] mt-3">
+            Muito obrigado pela preferência
+            {data?.customer_name ? `, ${data.customer_name}` : ""}. Bom apetite!
+          </p>
+          {secondsLeft !== null && (
+            <p className="text-xs text-[#A3A3A3] mt-5">
+              Redirecionando em{" "}
+              <span className="font-mono text-[#FF7A00]">
+                {String(secondsLeft).padStart(2, "0")}s
+              </span>
+              ...
+            </p>
+          )}
+          <Link
+            to="/"
+            className="inline-flex items-center gap-2 mt-6 bg-[#FF7A00] text-[#0a0a0a] font-bold px-5 py-2 rounded-full text-sm"
+          >
+            Voltar para o início
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+
+
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-[#E7D3B1]">
       <div className="max-w-3xl mx-auto px-4 py-8">
