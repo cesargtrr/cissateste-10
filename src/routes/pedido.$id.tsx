@@ -204,13 +204,35 @@ function TrackingPage() {
     return isFinal(status) && status === "completed";
   }, [isMesa, mesaData, status]);
 
-  // 60s countdown → wipe client storage and redirect home.
+  // If the order was completed more than 60s ago, redirect to home immediately
+  // without rendering stale tracking UI.
+  const completedAtRaw =
+    (data as any)?.delivery_completed_at ?? (data as any)?.updated_at ?? null;
+  const isFinishedStatus =
+    data?.status === "completed" || data?.status === "delivered";
+  const isOldFinished =
+    isFinishedStatus &&
+    !!completedAtRaw &&
+    Date.now() - new Date(completedAtRaw as any).getTime() > 60_000;
+
   useEffect(() => {
-    if (!allFinished) {
+    if (isOldFinished && typeof window !== "undefined") {
+      try { clearActiveOrderId(); } catch {}
+      window.location.replace("/");
+    }
+  }, [isOldFinished]);
+
+  // Show thank-you only when the order just finished while the page is open
+  // (or the customer opened it within 60s of completion).
+  const showThankYou = allFinished && !isOldFinished;
+
+  // 10s countdown → wipe client storage and redirect home.
+  useEffect(() => {
+    if (!showThankYou) {
       setSecondsLeft(null);
       return;
     }
-    setSecondsLeft(60);
+    setSecondsLeft(10);
     const interval = setInterval(() => {
       setSecondsLeft((s) => (s === null ? null : Math.max(0, s - 1)));
     }, 1000);
@@ -222,7 +244,6 @@ function TrackingPage() {
           try { localStorage.removeItem("oxente-cart-v1"); } catch {}
           try { localStorage.removeItem("oxente-orders-v1"); } catch {}
           try { sessionStorage.clear(); } catch {}
-          // Best-effort cookie wipe for current path
           try {
             document.cookie.split(";").forEach((c) => {
               const name = c.split("=")[0].trim();
@@ -237,12 +258,12 @@ function TrackingPage() {
           window.location.replace("/");
         }
       }
-    }, 60_000);
+    }, 10_000);
     return () => {
       clearInterval(interval);
       clearTimeout(timeout);
     };
-  }, [allFinished]);
+  }, [showThankYou]);
 
   if (isLoading) {
     return (
