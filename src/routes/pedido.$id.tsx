@@ -543,7 +543,7 @@ function normalizeDeliveryStatus(order: any): string {
 
 function DeliveryTracking({ orderId, order }: { orderId: string; order: any }) {
   const [driver, setDriver] = useState<{ name: string; phone: string | null } | null>(null);
-  const [history, setHistory] = useState<Array<{ id: string; status: string; created_at: string }>>([]);
+  
   const [items, setItems] = useState<Array<{ id: string; quantity: number; unit_price: number; menu_item_id: string | null; name?: string | null }>>([]);
   const [driverLocation, setDriverLocation] = useState<DriverLocationPoint | null>(null);
   const [customerPoint, setCustomerPoint] = useState<GeoPoint | null>(null);
@@ -571,28 +571,6 @@ function DeliveryTracking({ orderId, order }: { orderId: string; order: any }) {
     return () => { active = false; };
   }, [order?.delivery_driver_id]);
 
-  const loadHistory = async () => {
-    const { data } = await supabase
-      .from("order_status_history" as any)
-      .select("id, status, created_at")
-      .eq("order_id", orderId)
-      .order("created_at", { ascending: true });
-    if (data) setHistory(data as any);
-  };
-
-  useEffect(() => {
-    loadHistory();
-    const ch = supabase
-      .channel(`osh-${orderId}`)
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "order_status_history", filter: `order_id=eq.${orderId}` },
-        () => loadHistory(),
-      )
-      .subscribe();
-    return () => { supabase.removeChannel(ch); };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [orderId]);
 
   const loadDriverLocation = async () => {
     const { data } = await supabase.rpc("get_driver_location_for_order" as any, { _order_id: orderId } as any);
@@ -735,28 +713,6 @@ function DeliveryTracking({ orderId, order }: { orderId: string; order: any }) {
         />
       )}
 
-
-      {history.length > 0 && (
-        <details className="mt-5 pt-5 border-t border-[#3A2414]">
-          <summary className="cursor-pointer text-xs uppercase tracking-wider text-[#D4A15A] hover:text-[#FF7A00]">
-            Histórico ({history.length})
-          </summary>
-          <ul className="mt-3 space-y-2">
-            {history.map((h) => {
-              const step = DELIVERY_STEPS.find((s) => s.key === h.status);
-              const label = step?.label || h.status;
-              return (
-                <li key={h.id} className="flex items-center justify-between text-xs">
-                  <span className="text-[#E7D3B1]">{label}</span>
-                  <span className="text-[#A3A3A3]">
-                    {new Date(h.created_at).toLocaleString("pt-BR")}
-                  </span>
-                </li>
-              );
-            })}
-          </ul>
-        </details>
-      )}
 
       {items.length > 0 && (
         <div className="mt-5 pt-5 border-t border-[#3A2414]">
