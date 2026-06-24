@@ -35,6 +35,7 @@ export const updateRestaurantSettings = async (data: {
   aviso_mensagem?: string | null;
   aviso_link?: string | null;
   aviso_ativo?: boolean;
+  delivery_module_enabled?: boolean;
 }) => {
   const { data: existing } = await supabase
     .from("restaurant_settings")
@@ -56,6 +57,7 @@ export const updateRestaurantSettings = async (data: {
   if (data.aviso_mensagem !== undefined) patch.aviso_mensagem = data.aviso_mensagem;
   if (data.aviso_link !== undefined) patch.aviso_link = data.aviso_link;
   if (data.aviso_ativo !== undefined) patch.aviso_ativo = data.aviso_ativo;
+  if (data.delivery_module_enabled !== undefined) patch.delivery_module_enabled = data.delivery_module_enabled;
 
   if (existing) {
     const { error } = await supabase
@@ -71,6 +73,7 @@ export const updateRestaurantSettings = async (data: {
   }
   return { ok: true };
 };
+
 
 const orderItemSchema = z.object({
   menu_item_id: z.string().uuid().nullable().optional(),
