@@ -358,29 +358,23 @@ function PedidosEntregaPage() {
                       </Button>
                       <Button
                         size="sm"
-                        variant="outline"
                         onClick={() => setStatus(o, "pronto_para_entrega")}
-                        className="h-8 border-[#3A2414] text-[#D4A15A] hover:text-[#FF7A00]"
-                        title="Marcar como Pronto para Entrega"
+                        className="bg-[#FF7A00] hover:bg-[#FF7A00]/90 text-black font-semibold h-8"
+                        title="Liberar para entregadores"
+                        disabled={!!o.delivery_driver_id}
                       >
-                        <PackageCheck className="w-4 h-4 mr-1" /> Pronto
+                        <PackageCheck className="w-4 h-4 mr-1" /> Pronto p/ Entregador
                       </Button>
-                      <Button
-                        size="sm"
-                        onClick={() => setStatus(o, "saiu_para_entrega")}
-                        className="bg-blue-600 hover:bg-blue-700 text-white h-8"
-                        title="Marcar como Saiu para Entrega"
-                      >
-                        <Truck className="w-4 h-4 mr-1" /> Saiu p/ Entrega
-                      </Button>
-                      <Button
-                        size="sm"
-                        onClick={() => setStatus(o, "entregue")}
-                        className="bg-emerald-600 hover:bg-emerald-700 text-white h-8"
-                        title="Marcar como Entregue"
-                      >
-                        <CheckCircle2 className="w-4 h-4 mr-1" /> Entregue
-                      </Button>
+                      {st === "saiu_para_entrega" && (
+                        <span className="text-[11px] text-blue-400 flex items-center gap-1">
+                          <Truck className="w-3.5 h-3.5" /> Em rota com entregador
+                        </span>
+                      )}
+                      {st === "entregue" && (
+                        <span className="text-[11px] text-emerald-400 flex items-center gap-1">
+                          <CheckCircle2 className="w-3.5 h-3.5" /> Concluído pelo entregador
+                        </span>
+                      )}
                       {(st === "entregue" || st === "saiu_para_entrega") && (
                         <Button
                           size="sm"
