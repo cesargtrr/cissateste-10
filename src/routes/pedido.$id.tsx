@@ -723,13 +723,16 @@ function DeliveryTracking({ orderId, order }: { orderId: string; order: any }) {
         </div>
       )}
 
-      <LiveDeliveryMap
-        driverLocation={driverLocation}
-        customerPoint={customerPoint}
-        customerAddress={order?.delivery_address || null}
-        status={DELIVERY_STEPS.find((s) => s.key === currentStatus)?.label || currentStatus}
-        onRequestCustomerPoint={requestCustomerPoint}
-      />
+      {deliveryModuleEnabled && (
+        <LiveDeliveryMap
+          driverLocation={driverLocation}
+          customerPoint={customerPoint}
+          customerAddress={order?.delivery_address || null}
+          status={DELIVERY_STEPS.find((s) => s.key === currentStatus)?.label || currentStatus}
+          onRequestCustomerPoint={requestCustomerPoint}
+        />
+      )}
+
 
       {history.length > 0 && (
         <details className="mt-5 pt-5 border-t border-[#3A2414]">
