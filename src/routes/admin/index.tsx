@@ -1924,8 +1924,14 @@ function SettingsTab({ qc }: { qc: any }) {
       setAvisoTitulo(String((data as any).aviso_titulo ?? ""));
       setAvisoMensagem(String((data as any).aviso_mensagem ?? ""));
       setAvisoLink(String((data as any).aviso_link ?? ""));
+      setDeliveryModuleEnabled(
+        (data as any).delivery_module_enabled === undefined
+          ? true
+          : Boolean((data as any).delivery_module_enabled),
+      );
     }
   }, [data]);
+
 
   const saveMut = useMutation({
     mutationFn: () =>
