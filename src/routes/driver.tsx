@@ -203,6 +203,12 @@ function DriverPortal() {
       // Driver sees:
       //  (a) orders assigned to themselves, AND
       //  (b) unassigned delivery orders still available to claim.
+      // Driver visibility rules (delivery module):
+      //  (a) orders already assigned to this driver, plus
+      //  (b) unassigned delivery orders that the kitchen has released
+      //      (delivery_status = 'pronto_para_entrega'). Orders still in
+      //      'received' or 'preparing' (no kitchen release yet) MUST NOT
+      //      appear to the driver.
       const { data, error } = await supabase
         .from("orders")
         .select(
@@ -210,7 +216,7 @@ function DriverPortal() {
         )
         .or(
           `delivery_driver_id.eq.${driverId},` +
-            `and(delivery_driver_id.is.null,or(delivery_status.in.(pedido_recebido,em_preparo,pronto_para_entrega),status.in.(preparing,ready)))`,
+            `and(delivery_driver_id.is.null,delivery_status.eq.pronto_para_entrega)`,
         )
         .not("delivery_address", "is", null)
         .not("status", "in", "(cancelled,completed)")
