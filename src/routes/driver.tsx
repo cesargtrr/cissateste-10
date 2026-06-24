@@ -11,6 +11,8 @@ import { Badge } from "@/components/ui/badge";
 import { DriverLocationPoint, distanceMeters } from "@/lib/geo-tracking";
 import { useDriverLocationTracker } from "@/hooks/useDriverLocationTracker";
 import { useStoreOpenStatus } from "@/components/oxente/OpeningStatusBanner";
+import { useDeliveryModuleEnabled } from "@/hooks/useDeliveryModule";
+
 
 export const Route = createFileRoute("/driver")({
   component: DriverPortalRoute,
