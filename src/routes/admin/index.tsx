@@ -2810,12 +2810,19 @@ function OrderDetailsDialog({ order, onClose, menuItems, qc, onStatusChange }: a
                 Atualizar Status
               </h4>
               <div className="grid grid-cols-2 gap-2">
-                {statusOptions.map((opt, i) => {
-                  const active = order.status === opt.key;
+                {statusOptions.map((opt) => {
+                  const active =
+                    opt.key === "ready_for_delivery"
+                      ? isReadyForDelivery
+                      : order.status === opt.key;
+                  const pending = statusMut.isPending || readyForDeliveryMut.isPending;
                   const disabled =
-                    statusMut.isPending ||
+                    pending ||
                     active ||
-                    (opt.key === "delivered" && order.source === "mesa");
+                    (opt.key === "delivered" && order.source === "mesa") ||
+                    // After the driver accepts, admin loses control over the
+                    // delivery-stage buttons (driver becomes the source of truth).
+                    (driverAccepted && opt.key === "ready_for_delivery");
                   return (
                     <button
                       key={opt.key}
@@ -2834,6 +2841,13 @@ function OrderDetailsDialog({ order, onClose, menuItems, qc, onStatusChange }: a
                   );
                 })}
               </div>
+              {driverWorkflow && (
+                <p className="text-[11px] text-[#A3A3A3] mt-1">
+                  {driverAccepted
+                    ? "🛵 Entregador aceitou o pedido. Saiu para Entrega e Concluído são atualizados pelo entregador em tempo real."
+                    : "Use “Pronto para Entregador” quando a cozinha liberar o pedido. O entregador controla as etapas seguintes."}
+                </p>
+              )}
             </div>
           )}
 
